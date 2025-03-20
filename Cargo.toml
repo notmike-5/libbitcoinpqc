@@ -1,0 +1,23 @@
+[package]
+name = "libbitcoinpqc"
+version = "0.1.0"
+edition = "2021"
+authors = ["Bitcoin PQC Contributors"]
+description = "Post-Quantum Cryptographic signature algorithms for Bitcoin"
+repository = "https://github.com/bitcoin/libbitcoinpqc"
+license = "MIT"
+
+[dependencies]
+libc = "0.2"
+
+[build-dependencies]
+bindgen = "0.68"
+cmake = "0.1"
+
+[dev-dependencies]
+hex = "0.4"
+rand = "0.8"
+
+[lib]
+name = "bitcoinpqc"
+crate-type = ["rlib", "staticlib", "cdylib"]
