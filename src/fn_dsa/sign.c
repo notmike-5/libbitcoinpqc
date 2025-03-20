@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include "libbitcoinpqc/fn_dsa.h"
 
 /*
@@ -25,8 +26,12 @@ int fn_dsa_512_sign(
     size_t random_data_size
 ) {
     if (!sig || !siglen || !m || !sk) {
+        printf("FN-DSA sign: Invalid arguments\n");
         return -1;
     }
+
+    printf("FN-DSA sign: Starting to sign message of length %zu\n", mlen);
+    printf("FN-DSA sign: Secret key size: %d bytes, first byte: 0x%02x\n", FN_DSA_512_SECRET_KEY_SIZE, sk[0]);
 
     /* Initialize a SHAKE256 context for randomness if provided */
     shake256_context rng;
@@ -36,6 +41,9 @@ int fn_dsa_512_sign(
         shake256_init(&rng);
         shake256_inject(&rng, random_data, random_data_size);
         shake256_flip(&rng);
+        printf("FN-DSA sign: Using provided random data of size %zu\n", random_data_size);
+    } else {
+        printf("FN-DSA sign: Using deterministic signing (no random data)\n");
     }
 
     /*
@@ -44,14 +52,18 @@ int fn_dsa_512_sign(
      */
     uint8_t *tmp = malloc(FALCON_TMPSIZE_SIGNDYN(9));
     if (!tmp) {
+        printf("FN-DSA sign: Memory allocation failed\n");
         return -1;
     }
+
+    printf("FN-DSA sign: Allocated temporary buffer of size %d bytes\n", FALCON_TMPSIZE_SIGNDYN(9));
 
     /* Compute signature */
     int result;
 
     if (random_data && random_data_size >= 64) {
         /* Use provided randomness */
+        printf("FN-DSA sign: Calling falcon_sign_dyn with RNG\n");
         result = falcon_sign_dyn(
             &rng,                /* RNG context */
             sig,                 /* output: signature */
@@ -66,6 +78,7 @@ int fn_dsa_512_sign(
         );
     } else {
         /* No external randomness, use deterministic signing */
+        printf("FN-DSA sign: Calling falcon_sign_dyn without RNG\n");
         result = falcon_sign_dyn(
             NULL,                /* No RNG */
             sig,                 /* output: signature */
@@ -78,6 +91,19 @@ int fn_dsa_512_sign(
             tmp,                 /* temporary buffer */
             FALCON_TMPSIZE_SIGNDYN(9)   /* temporary buffer size */
         );
+    }
+
+    printf("FN-DSA sign: falcon_sign_dyn returned %d, signature length: %zu\n", result, *siglen);
+    if (result != 0) {
+        switch (result) {
+            case -1: printf("FN-DSA sign: Error code -1 (FALCON_ERR_SIZE)\n"); break;
+            case -2: printf("FN-DSA sign: Error code -2 (FALCON_ERR_FORMAT) - Malformed key or signature\n"); break;
+            case -3: printf("FN-DSA sign: Error code -3 (FALCON_ERR_BADARG) - Invalid parameters\n"); break;
+            case -4: printf("FN-DSA sign: Error code -4 (FALCON_ERR_INTERNAL) - Internal error\n"); break;
+            default: printf("FN-DSA sign: Unknown error code %d\n", result);
+        }
+    } else if (*siglen == 0) {
+        printf("FN-DSA sign: Signature generation succeeded but signature length is 0!\n");
     }
 
     /* Clean up */
