@@ -13,6 +13,13 @@
 #include "../../dilithium/ref/params.h"
 #include "../../dilithium/ref/sign.h"
 
+/* Debug mode flag - set to 0 to disable debug output */
+#define ML_DSA_DEBUG 0
+
+/* Conditional debug print macro */
+#define DEBUG_PRINT(fmt, ...) \
+    do { if (ML_DSA_DEBUG) printf(fmt, ##__VA_ARGS__); } while (0)
+
 /*
  * External declaration for the random data utilities
  * These are implemented in src/ml_dsa/utils.c
@@ -35,15 +42,15 @@ int ml_dsa_44_sign(
         return -1;
     }
 
-    printf("ML-DSA sign: Starting to sign message of length %zu\n", mlen);
+    DEBUG_PRINT("ML-DSA sign: Starting to sign message of length %zu\n", mlen);
 
     /* Use provided random data if available */
     if (random_data && random_data_size >= 64) {
         ml_dsa_init_random_source(random_data, random_data_size);
         ml_dsa_setup_custom_random();
-        printf("ML-DSA sign: Using provided random data of size %zu\n", random_data_size);
+        DEBUG_PRINT("ML-DSA sign: Using provided random data of size %zu\n", random_data_size);
     } else {
-        printf("ML-DSA sign: Using system random data\n");
+        DEBUG_PRINT("ML-DSA sign: Using system random data\n");
     }
 
     /* Set up empty context */
@@ -54,12 +61,12 @@ int ml_dsa_44_sign(
     uint8_t temp_sig[CRYPTO_BYTES + 1024]; /* Add some extra space for safety */
     size_t temp_siglen = 0;
 
-    printf("ML-DSA sign: Calling crypto_sign_signature with CRYPTO_BYTES = %d\n", CRYPTO_BYTES);
+    DEBUG_PRINT("ML-DSA sign: Calling crypto_sign_signature with CRYPTO_BYTES = %d\n", CRYPTO_BYTES);
 
     /* Call the reference implementation's signing function */
     int result = crypto_sign_signature(temp_sig, &temp_siglen, m, mlen, ctx, ctxlen, sk);
 
-    printf("ML-DSA sign: crypto_sign_signature returned %d, temp_siglen = %zu\n", result, temp_siglen);
+    DEBUG_PRINT("ML-DSA sign: crypto_sign_signature returned %d, temp_siglen = %zu\n", result, temp_siglen);
 
     /* Restore original random bytes function if we changed it */
     if (random_data && random_data_size >= 64) {
@@ -73,14 +80,15 @@ int ml_dsa_44_sign(
             /* Copy the signature to the output */
             memcpy(sig, temp_sig, temp_siglen);
             *siglen = temp_siglen;
-            printf("ML-DSA sign: Signature copied successfully, size = %zu\n", *siglen);
+
+            DEBUG_PRINT("ML-DSA sign: Signature copied successfully, size = %zu\n", *siglen);
 
             /* Debug: Print first few bytes of signature */
-            printf("ML-DSA sign: Signature prefix: ");
+            DEBUG_PRINT("ML-DSA sign: Signature prefix: ");
             for (size_t i = 0; i < (temp_siglen < 8 ? temp_siglen : 8); i++) {
-                printf("%02x", sig[i]);
+                if (ML_DSA_DEBUG) printf("%02x", sig[i]);
             }
-            printf("...\n");
+            if (ML_DSA_DEBUG) printf("...\n");
         } else {
             fprintf(stderr, "ML-DSA sign: Invalid signature size: %zu\n", temp_siglen);
             return -1;

@@ -1,3 +1,4 @@
 /target
 /build
 *.o
+benchmark_results.txt

@@ -6,6 +6,8 @@ A C library with Rust bindings for Post-Quantum Cryptographic (PQC) signature al
 2. **SLH-DSA-Shake-128s** (formerly SPHINCS+): A stateless hash-based signature scheme with minimal security assumptions.
 3. **FN-DSA-512** (formerly FALCON): A lattice-based signature scheme designed for efficiency and compact signatures.
 
+Notice that all PQC signature algorithms used are certified according to the Federal Information Processing Standards, or FIPS. This should help in the future with native hardware support.
+
 ## Bitcoin QuBit Integration
 
 This library serves as the cryptographic foundation for the Bitcoin QuBit soft fork, which aims to make Bitcoin's signature verification quantum-resistant through the implementation of BIP-360. QuBit introduces new post-quantum secure transaction types that can protect Bitcoin from potential threats posed by quantum computers.

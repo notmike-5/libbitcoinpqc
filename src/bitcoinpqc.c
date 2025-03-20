@@ -2,6 +2,16 @@
 #include <string.h>
 #include <stdio.h>
 #include "libbitcoinpqc/bitcoinpqc.h"
+#include "libbitcoinpqc/ml_dsa.h"
+#include "libbitcoinpqc/slh_dsa.h"
+#include "libbitcoinpqc/fn_dsa.h"
+
+// Debug mode flag - set to 0 to disable debug output
+#define BITCOIN_PQC_DEBUG 0
+
+// Conditional debug print macro
+#define DEBUG_PRINT(fmt, ...) \
+    do { if (BITCOIN_PQC_DEBUG) printf(fmt, ##__VA_ARGS__); } while (0)
 
 size_t bitcoin_pqc_public_key_size(bitcoin_pqc_algorithm_t algorithm) {
     switch (algorithm) {
@@ -155,33 +165,33 @@ bitcoin_pqc_error_t bitcoin_pqc_sign(
         return BITCOIN_PQC_ERROR_BAD_ARG;
     }
 
-    printf("bitcoin_pqc_sign: algorithm=%d, message_size=%zu, secret_key_size=%zu\n",
+    DEBUG_PRINT("bitcoin_pqc_sign: algorithm=%d, message_size=%zu, secret_key_size=%zu\n",
            algorithm, message_size, secret_key_size);
 
     // Check if secret key size matches the expected size for the algorithm
     if (secret_key_size != bitcoin_pqc_secret_key_size(algorithm)) {
-        printf("bitcoin_pqc_sign: Bad key size. Expected %zu, got %zu\n",
+        DEBUG_PRINT("bitcoin_pqc_sign: Bad key size. Expected %zu, got %zu\n",
                bitcoin_pqc_secret_key_size(algorithm), secret_key_size);
         return BITCOIN_PQC_ERROR_BAD_KEY;
     }
 
     // Check random data if provided
     if (random_data && random_data_size < 64) {
-        printf("bitcoin_pqc_sign: Bad random data size. Got %zu\n", random_data_size);
+        DEBUG_PRINT("bitcoin_pqc_sign: Bad random data size. Got %zu\n", random_data_size);
         return BITCOIN_PQC_ERROR_BAD_ARG;
     }
 
     // Get signature size for buffer allocation
     size_t sig_size = bitcoin_pqc_signature_size(algorithm);
     if (sig_size == 0) {
-        printf("bitcoin_pqc_sign: Bad algorithm or signature size. Size=%zu\n", sig_size);
+        DEBUG_PRINT("bitcoin_pqc_sign: Bad algorithm or signature size. Size=%zu\n", sig_size);
         return BITCOIN_PQC_ERROR_BAD_ARG;
     }
 
     // Allocate signature buffer
     uint8_t *sig = malloc(sig_size);
     if (!sig) {
-        printf("bitcoin_pqc_sign: Memory allocation failed\n");
+        DEBUG_PRINT("bitcoin_pqc_sign: Memory allocation failed\n");
         return BITCOIN_PQC_ERROR_BAD_ARG;
     }
 
@@ -192,31 +202,31 @@ bitcoin_pqc_error_t bitcoin_pqc_sign(
         case BITCOIN_PQC_SECP256K1_SCHNORR:
             // Placeholder for BIP-340 Schnorr signing
             // In a real implementation, this would call secp256k1 functions
-            printf("bitcoin_pqc_sign: Schnorr signing not implemented yet\n");
+            DEBUG_PRINT("bitcoin_pqc_sign: Schnorr signing not implemented yet\n");
             result = -1; // Not implemented yet
             break;
         case BITCOIN_PQC_ML_DSA_44:
-            printf("bitcoin_pqc_sign: Calling ml_dsa_44_sign\n");
+            DEBUG_PRINT("bitcoin_pqc_sign: Calling ml_dsa_44_sign\n");
             result = ml_dsa_44_sign(sig, &actual_sig_len, message, message_size,
                                   secret_key, random_data, random_data_size);
             break;
         case BITCOIN_PQC_SLH_DSA_SHAKE_128S:
-            printf("bitcoin_pqc_sign: Calling slh_dsa_shake_128s_sign\n");
+            DEBUG_PRINT("bitcoin_pqc_sign: Calling slh_dsa_shake_128s_sign\n");
             result = slh_dsa_shake_128s_sign(sig, &actual_sig_len, message, message_size,
                                            secret_key, random_data, random_data_size);
             break;
         case BITCOIN_PQC_FN_DSA_512:
-            printf("bitcoin_pqc_sign: Calling fn_dsa_512_sign\n");
+            DEBUG_PRINT("bitcoin_pqc_sign: Calling fn_dsa_512_sign\n");
             result = fn_dsa_512_sign(sig, &actual_sig_len, message, message_size,
                                    secret_key, random_data, random_data_size);
             break;
         default:
             free(sig);
-            printf("bitcoin_pqc_sign: Unsupported algorithm %d\n", algorithm);
+            DEBUG_PRINT("bitcoin_pqc_sign: Unsupported algorithm %d\n", algorithm);
             return BITCOIN_PQC_ERROR_NOT_IMPLEMENTED;
     }
 
-    printf("bitcoin_pqc_sign: Algorithm-specific sign function returned %d, actual_sig_len=%zu\n",
+    DEBUG_PRINT("bitcoin_pqc_sign: Algorithm-specific sign function returned %d, actual_sig_len=%zu\n",
            result, actual_sig_len);
 
     if (result != 0) {
@@ -229,7 +239,7 @@ bitcoin_pqc_error_t bitcoin_pqc_sign(
     signature->signature = sig;
     signature->signature_size = actual_sig_len;
 
-    printf("bitcoin_pqc_sign: Signature created successfully, size=%zu\n", signature->signature_size);
+    DEBUG_PRINT("bitcoin_pqc_sign: Signature created successfully, size=%zu\n", signature->signature_size);
 
     return BITCOIN_PQC_OK;
 }
@@ -259,16 +269,16 @@ bitcoin_pqc_error_t bitcoin_pqc_verify(
     size_t signature_size
 ) {
     if (!public_key || !message || !signature) {
-        printf("bitcoin_pqc_verify: Invalid arguments\n");
+        DEBUG_PRINT("bitcoin_pqc_verify: Invalid arguments\n");
         return BITCOIN_PQC_ERROR_BAD_ARG;
     }
 
-    printf("bitcoin_pqc_verify: algorithm=%d, message_size=%zu, public_key_size=%zu, signature_size=%zu\n",
+    DEBUG_PRINT("bitcoin_pqc_verify: algorithm=%d, message_size=%zu, public_key_size=%zu, signature_size=%zu\n",
            algorithm, message_size, public_key_size, signature_size);
 
     // Check if key size matches the expected size for the algorithm
     if (public_key_size != bitcoin_pqc_public_key_size(algorithm)) {
-        printf("bitcoin_pqc_verify: Bad public key size. Expected %zu, got %zu\n",
+        DEBUG_PRINT("bitcoin_pqc_verify: Bad public key size. Expected %zu, got %zu\n",
                bitcoin_pqc_public_key_size(algorithm), public_key_size);
         return BITCOIN_PQC_ERROR_BAD_KEY;
     }
@@ -278,11 +288,11 @@ bitcoin_pqc_error_t bitcoin_pqc_verify(
     if (algorithm != BITCOIN_PQC_FN_DSA_512 && signature_size != expected_sig_size) {
         // For FALCON, signature size can vary but must be <= max size
         if (algorithm == BITCOIN_PQC_FN_DSA_512 && signature_size > expected_sig_size) {
-            printf("bitcoin_pqc_verify: Bad signature size for FALCON. Max %zu, got %zu\n",
+            DEBUG_PRINT("bitcoin_pqc_verify: Bad signature size for FALCON. Max %zu, got %zu\n",
                    expected_sig_size, signature_size);
             return BITCOIN_PQC_ERROR_BAD_SIGNATURE;
         } else if (algorithm != BITCOIN_PQC_FN_DSA_512) {
-            printf("bitcoin_pqc_verify: Bad signature size. Expected %zu, got %zu\n",
+            DEBUG_PRINT("bitcoin_pqc_verify: Bad signature size. Expected %zu, got %zu\n",
                    expected_sig_size, signature_size);
             return BITCOIN_PQC_ERROR_BAD_SIGNATURE;
         }
@@ -293,27 +303,27 @@ bitcoin_pqc_error_t bitcoin_pqc_verify(
         case BITCOIN_PQC_SECP256K1_SCHNORR:
             // Placeholder for BIP-340 Schnorr verification
             // In a real implementation, this would call secp256k1 functions
-            printf("bitcoin_pqc_verify: Schnorr verification not implemented yet\n");
+            DEBUG_PRINT("bitcoin_pqc_verify: Schnorr verification not implemented yet\n");
             result = -1; // Not implemented yet
             break;
         case BITCOIN_PQC_ML_DSA_44:
-            printf("bitcoin_pqc_verify: Calling ml_dsa_44_verify\n");
+            DEBUG_PRINT("bitcoin_pqc_verify: Calling ml_dsa_44_verify\n");
             result = ml_dsa_44_verify(signature, signature_size, message, message_size, public_key);
             break;
         case BITCOIN_PQC_SLH_DSA_SHAKE_128S:
-            printf("bitcoin_pqc_verify: Calling slh_dsa_shake_128s_verify\n");
+            DEBUG_PRINT("bitcoin_pqc_verify: Calling slh_dsa_shake_128s_verify\n");
             result = slh_dsa_shake_128s_verify(signature, signature_size, message, message_size, public_key);
             break;
         case BITCOIN_PQC_FN_DSA_512:
-            printf("bitcoin_pqc_verify: Calling fn_dsa_512_verify\n");
+            DEBUG_PRINT("bitcoin_pqc_verify: Calling fn_dsa_512_verify\n");
             result = fn_dsa_512_verify(signature, signature_size, message, message_size, public_key);
             break;
         default:
-            printf("bitcoin_pqc_verify: Unsupported algorithm %d\n", algorithm);
+            DEBUG_PRINT("bitcoin_pqc_verify: Unsupported algorithm %d\n", algorithm);
             return BITCOIN_PQC_ERROR_NOT_IMPLEMENTED;
     }
 
-    printf("bitcoin_pqc_verify: Algorithm-specific verify function returned %d\n", result);
+    DEBUG_PRINT("bitcoin_pqc_verify: Algorithm-specific verify function returned %d\n", result);
 
     if (result != 0) {
         return BITCOIN_PQC_ERROR_BAD_SIGNATURE;

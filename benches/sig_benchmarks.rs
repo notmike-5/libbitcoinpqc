@@ -5,6 +5,18 @@ use std::time::Duration;
 
 use bitcoinpqc::{generate_keypair, sign, verify, Algorithm};
 
+// Set to true to enable debug output, false to disable
+const DEBUG_MODE: bool = false;
+
+// Conditional debug print macro
+macro_rules! debug_println {
+    ($($arg:tt)*) => {
+        if DEBUG_MODE {
+            println!($($arg)*);
+        }
+    };
+}
+
 // Function to create a 32-byte array from data for secp256k1
 fn create_32byte_array(data: &[u8]) -> [u8; 32] {
     use sha2::{Digest, Sha256};
@@ -158,32 +170,35 @@ fn bench_fn_dsa_512_signing(c: &mut Criterion) {
     let random_data = get_random_data(256);
     let fn_keypair = generate_keypair(Algorithm::FN_DSA_512, &random_data).unwrap();
 
-    // Print debug info about the keypair
-    println!("FN-DSA-512 Keypair created for benchmarking:");
-    println!(
-        "Public key size: {}, Secret key size: {}",
-        fn_keypair.public_key.bytes.len(),
-        fn_keypair.secret_key.bytes.len()
-    );
-    println!(
-        "Secret key first bytes: {:02x?}",
-        &fn_keypair.secret_key.bytes[..8.min(fn_keypair.secret_key.bytes.len())]
-    );
+    // Only print debug info if DEBUG_MODE is true
+    if DEBUG_MODE {
+        println!("FN-DSA-512 Keypair created for benchmarking:");
+        println!(
+            "Public key size: {}, Secret key size: {}",
+            fn_keypair.public_key.bytes.len(),
+            fn_keypair.secret_key.bytes.len()
+        );
+        println!(
+            "Secret key first bytes: {:02x?}",
+            &fn_keypair.secret_key.bytes[..8.min(fn_keypair.secret_key.bytes.len())]
+        );
 
-    // Verify we can sign once before benchmarking
-    let test_sig = sign(&fn_keypair.secret_key, message, Some(&get_random_data(256))).unwrap();
-    println!("Test signature size: {}", test_sig.bytes.len());
-    println!(
-        "Test signature first bytes: {:02x?}",
-        &test_sig.bytes[..8.min(test_sig.bytes.len())]
-    );
+        // Verify we can sign once before benchmarking
+        let test_sig = sign(&fn_keypair.secret_key, message, Some(&get_random_data(256))).unwrap();
+        println!("Test signature size: {}", test_sig.bytes.len());
+        println!(
+            "Test signature first bytes: {:02x?}",
+            &test_sig.bytes[..8.min(test_sig.bytes.len())]
+        );
+    } else {
+        // Generate a test signature without debug output
+        sign(&fn_keypair.secret_key, message, Some(&get_random_data(256))).unwrap();
+    }
 
     // Now benchmark
     group.bench_function("FN_DSA_512", |b| {
         b.iter(|| {
             let random_data = get_random_data(256);
-            // Extra debug info
-            println!("Random data size for signature: {}", random_data.len());
             sign(&fn_keypair.secret_key, message, Some(&random_data)).unwrap()
         });
     });
@@ -235,25 +250,25 @@ fn bench_sizes(c: &mut Criterion) {
     let fn_sig = sign(&fn_keypair.secret_key, message, Some(&get_random_data(256))).unwrap();
 
     // Print key and signature sizes
-    println!("Key and Signature Sizes (bytes):");
-    println!("ML-DSA-44:");
-    println!(
+    debug_println!("Key and Signature Sizes (bytes):");
+    debug_println!("ML-DSA-44:");
+    debug_println!(
         "  Public key: {}, Secret key: {}, Signature: {}",
         ml_keypair.public_key.bytes.len(),
         ml_keypair.secret_key.bytes.len(),
         ml_sig.bytes.len()
     );
 
-    println!("SLH-DSA-128S:");
-    println!(
+    debug_println!("SLH-DSA-128S:");
+    debug_println!(
         "  Public key: {}, Secret key: {}, Signature: {}",
         slh_keypair.public_key.bytes.len(),
         slh_keypair.secret_key.bytes.len(),
         slh_sig.bytes.len()
     );
 
-    println!("FN-DSA-512:");
-    println!(
+    debug_println!("FN-DSA-512:");
+    debug_println!(
         "  Public key: {}, Secret key: {}, Signature: {}",
         fn_keypair.public_key.bytes.len(),
         fn_keypair.secret_key.bytes.len(),
@@ -268,8 +283,8 @@ fn bench_sizes(c: &mut Criterion) {
     let msg_bytes = create_32byte_array(message);
     let sig = secp.sign_schnorr(&msg_bytes, &keypair);
 
-    println!("secp256k1:");
-    println!(
+    debug_println!("secp256k1:");
+    debug_println!(
         "  Public key: {}, Secret key: {}, Signature: {}",
         xonly_pubkey.serialize().len(),
         secret_key.secret_bytes().len(),
