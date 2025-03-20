@@ -18,6 +18,12 @@ cmake = "0.1"
 hex = "0.4"
 rand = "0.8"
 
+[features]
+default = []
+# Enable this feature in your IDE for better code completion
+# but never use it for actual builds
+ide = []
+
 [lib]
 name = "bitcoinpqc"
 crate-type = ["rlib", "staticlib", "cdylib"]

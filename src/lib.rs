@@ -6,8 +6,11 @@ use std::error::Error;
 use std::fmt;
 use std::ptr;
 
-// Include the auto-generated bindings
-include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+// Include the auto-generated bindings using our wrapper
+// Make it pub(crate) so doctests can access these symbols
+pub(crate) mod bindings_include;
+// Use a glob import to get all the symbols consistently
+use bindings_include::*;
 
 /// Error type for PQC operations
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -46,7 +49,7 @@ impl From<bitcoin_pqc_error_t> for Result<(), PqcError> {
             bitcoin_pqc_error_t::BITCOIN_PQC_ERROR_BAD_KEY => Err(PqcError::BadKey),
             bitcoin_pqc_error_t::BITCOIN_PQC_ERROR_BAD_SIGNATURE => Err(PqcError::BadSignature),
             bitcoin_pqc_error_t::BITCOIN_PQC_ERROR_NOT_IMPLEMENTED => Err(PqcError::NotImplemented),
-            _ => Err(PqcError::Other(error.0 as i32)),
+            _ => Err(PqcError::Other(error.0)),
         }
     }
 }
