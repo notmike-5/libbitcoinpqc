@@ -5,6 +5,8 @@
 
 size_t bitcoin_pqc_public_key_size(bitcoin_pqc_algorithm_t algorithm) {
     switch (algorithm) {
+        case BITCOIN_PQC_SECP256K1_SCHNORR:
+            return 32; // X-only public key size for secp256k1
         case BITCOIN_PQC_ML_DSA_44:
             return ML_DSA_44_PUBLIC_KEY_SIZE;
         case BITCOIN_PQC_SLH_DSA_SHAKE_128S:
@@ -18,6 +20,8 @@ size_t bitcoin_pqc_public_key_size(bitcoin_pqc_algorithm_t algorithm) {
 
 size_t bitcoin_pqc_secret_key_size(bitcoin_pqc_algorithm_t algorithm) {
     switch (algorithm) {
+        case BITCOIN_PQC_SECP256K1_SCHNORR:
+            return 32; // Private key size for secp256k1
         case BITCOIN_PQC_ML_DSA_44:
             return ML_DSA_44_SECRET_KEY_SIZE;
         case BITCOIN_PQC_SLH_DSA_SHAKE_128S:
@@ -31,6 +35,8 @@ size_t bitcoin_pqc_secret_key_size(bitcoin_pqc_algorithm_t algorithm) {
 
 size_t bitcoin_pqc_signature_size(bitcoin_pqc_algorithm_t algorithm) {
     switch (algorithm) {
+        case BITCOIN_PQC_SECP256K1_SCHNORR:
+            return 64; // Schnorr signature size for secp256k1
         case BITCOIN_PQC_ML_DSA_44:
             return ML_DSA_44_SIGNATURE_SIZE;
         case BITCOIN_PQC_SLH_DSA_SHAKE_128S:
@@ -76,6 +82,11 @@ bitcoin_pqc_error_t bitcoin_pqc_keygen(
 
     int result;
     switch (algorithm) {
+        case BITCOIN_PQC_SECP256K1_SCHNORR:
+            // Placeholder for BIP-340 Schnorr key generation
+            // In a real implementation, this would call secp256k1 functions
+            result = -1; // Not implemented yet
+            break;
         case BITCOIN_PQC_ML_DSA_44:
             result = ml_dsa_44_keygen(pk, sk, random_data, random_data_size);
             break;
@@ -178,6 +189,12 @@ bitcoin_pqc_error_t bitcoin_pqc_sign(
     int result;
 
     switch (algorithm) {
+        case BITCOIN_PQC_SECP256K1_SCHNORR:
+            // Placeholder for BIP-340 Schnorr signing
+            // In a real implementation, this would call secp256k1 functions
+            printf("bitcoin_pqc_sign: Schnorr signing not implemented yet\n");
+            result = -1; // Not implemented yet
+            break;
         case BITCOIN_PQC_ML_DSA_44:
             printf("bitcoin_pqc_sign: Calling ml_dsa_44_sign\n");
             result = ml_dsa_44_sign(sig, &actual_sig_len, message, message_size,
@@ -249,29 +266,47 @@ bitcoin_pqc_error_t bitcoin_pqc_verify(
     printf("bitcoin_pqc_verify: algorithm=%d, message_size=%zu, public_key_size=%zu, signature_size=%zu\n",
            algorithm, message_size, public_key_size, signature_size);
 
-    // Check if public key size matches the expected size for the algorithm
+    // Check if key size matches the expected size for the algorithm
     if (public_key_size != bitcoin_pqc_public_key_size(algorithm)) {
-        printf("bitcoin_pqc_verify: Bad key size. Expected %zu, got %zu\n",
+        printf("bitcoin_pqc_verify: Bad public key size. Expected %zu, got %zu\n",
                bitcoin_pqc_public_key_size(algorithm), public_key_size);
         return BITCOIN_PQC_ERROR_BAD_KEY;
     }
 
+    // Get expected signature size
+    size_t expected_sig_size = bitcoin_pqc_signature_size(algorithm);
+    if (algorithm != BITCOIN_PQC_FN_DSA_512 && signature_size != expected_sig_size) {
+        // For FALCON, signature size can vary but must be <= max size
+        if (algorithm == BITCOIN_PQC_FN_DSA_512 && signature_size > expected_sig_size) {
+            printf("bitcoin_pqc_verify: Bad signature size for FALCON. Max %zu, got %zu\n",
+                   expected_sig_size, signature_size);
+            return BITCOIN_PQC_ERROR_BAD_SIGNATURE;
+        } else if (algorithm != BITCOIN_PQC_FN_DSA_512) {
+            printf("bitcoin_pqc_verify: Bad signature size. Expected %zu, got %zu\n",
+                   expected_sig_size, signature_size);
+            return BITCOIN_PQC_ERROR_BAD_SIGNATURE;
+        }
+    }
+
     int result;
     switch (algorithm) {
+        case BITCOIN_PQC_SECP256K1_SCHNORR:
+            // Placeholder for BIP-340 Schnorr verification
+            // In a real implementation, this would call secp256k1 functions
+            printf("bitcoin_pqc_verify: Schnorr verification not implemented yet\n");
+            result = -1; // Not implemented yet
+            break;
         case BITCOIN_PQC_ML_DSA_44:
             printf("bitcoin_pqc_verify: Calling ml_dsa_44_verify\n");
-            result = ml_dsa_44_verify(signature, signature_size, message,
-                                    message_size, public_key);
+            result = ml_dsa_44_verify(signature, signature_size, message, message_size, public_key);
             break;
         case BITCOIN_PQC_SLH_DSA_SHAKE_128S:
             printf("bitcoin_pqc_verify: Calling slh_dsa_shake_128s_verify\n");
-            result = slh_dsa_shake_128s_verify(signature, signature_size, message,
-                                             message_size, public_key);
+            result = slh_dsa_shake_128s_verify(signature, signature_size, message, message_size, public_key);
             break;
         case BITCOIN_PQC_FN_DSA_512:
             printf("bitcoin_pqc_verify: Calling fn_dsa_512_verify\n");
-            result = fn_dsa_512_verify(signature, signature_size, message,
-                                     message_size, public_key);
+            result = fn_dsa_512_verify(signature, signature_size, message, message_size, public_key);
             break;
         default:
             printf("bitcoin_pqc_verify: Unsupported algorithm %d\n", algorithm);
@@ -280,5 +315,9 @@ bitcoin_pqc_error_t bitcoin_pqc_verify(
 
     printf("bitcoin_pqc_verify: Algorithm-specific verify function returned %d\n", result);
 
-    return (result == 0) ? BITCOIN_PQC_OK : BITCOIN_PQC_ERROR_BAD_SIGNATURE;
+    if (result != 0) {
+        return BITCOIN_PQC_ERROR_BAD_SIGNATURE;
+    }
+
+    return BITCOIN_PQC_OK;
 }

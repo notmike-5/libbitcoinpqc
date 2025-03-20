@@ -57,20 +57,23 @@ impl From<bitcoin_pqc_error_t> for Result<(), PqcError> {
 /// PQC Algorithm type
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Algorithm {
+    /// BIP-340 Schnorr + X-Only - Elliptic Curve Digital Signature Algorithm
+    SECP256K1_SCHNORR,
+    /// FN-DSA-512 (FALCON) - Fast Fourier lattice-based signature scheme
+    FN_DSA_512,
     /// ML-DSA-44 (CRYSTALS-Dilithium) - Lattice-based signature scheme
     ML_DSA_44,
     /// SLH-DSA-Shake-128s (SPHINCS+) - Hash-based signature scheme
     SLH_DSA_128S,
-    /// FN-DSA-512 (FALCON) - Fast Fourier lattice-based signature scheme
-    FN_DSA_512,
 }
 
 impl From<Algorithm> for bitcoin_pqc_algorithm_t {
     fn from(alg: Algorithm) -> Self {
         match alg {
+            Algorithm::SECP256K1_SCHNORR => bitcoin_pqc_algorithm_t::BITCOIN_PQC_SECP256K1_SCHNORR,
+            Algorithm::FN_DSA_512 => bitcoin_pqc_algorithm_t::BITCOIN_PQC_FN_DSA_512,
             Algorithm::ML_DSA_44 => bitcoin_pqc_algorithm_t::BITCOIN_PQC_ML_DSA_44,
             Algorithm::SLH_DSA_128S => bitcoin_pqc_algorithm_t::BITCOIN_PQC_SLH_DSA_SHAKE_128S,
-            Algorithm::FN_DSA_512 => bitcoin_pqc_algorithm_t::BITCOIN_PQC_FN_DSA_512,
         }
     }
 }
