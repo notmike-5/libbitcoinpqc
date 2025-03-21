@@ -28,6 +28,8 @@ This library serves as the cryptographic foundation for the Bitcoin QuBit soft f
 | SLH-DSA-Shake-128s | 32 bytes | 64 bytes | 7,856 bytes | NIST Level 1 |
 | FN-DSA-512 | 897 bytes | 1,281 bytes | ~666 bytes (average) | NIST Level 1 |
 
+See [REPORT.md](REPORT.md) for performance and size comparison to secp256k1.
+
 ## Dependencies
 
 Cryptographic dependencies included in this project:
