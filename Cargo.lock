@@ -432,6 +432,7 @@ dependencies = [
  "cmake",
  "criterion",
  "hex",
+ "lazy_static",
  "libc",
  "rand",
  "secp256k1",

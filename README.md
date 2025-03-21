@@ -28,6 +28,14 @@ This library serves as the cryptographic foundation for the Bitcoin QuBit soft f
 | SLH-DSA-Shake-128s | 32 bytes | 64 bytes | 7,856 bytes | NIST Level 1 |
 | FN-DSA-512 | 897 bytes | 1,281 bytes | ~666 bytes (average) | NIST Level 1 |
 
+## Dependencies
+
+Cryptographic dependencies included in this project:
+
+- https://github.com/sphincs/sphincsplus - `7ec789ace6874d875f4bb84cb61b81155398167e`
+- https://github.com/pq-crystals/dilithium - `444cdcc84eb36b66fe27b3a2529ee48f6d8150c2`
+- https://falcon-sign.info/Falcon-impl-20211101.zip
+
 ## Building the Library
 
 ### Prerequisites
