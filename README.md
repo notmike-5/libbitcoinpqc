@@ -16,6 +16,8 @@ This library serves as the cryptographic foundation for the Bitcoin QuBit soft f
 
 - Clean, unified C API for all three signature algorithms
 - Safe Rust bindings with memory safety and zero-copy operations
+- NodeJS TypeScript bindings with full type safety
+- Python bindings for easy integration
 - User-provided entropy (bring your own randomness)
 - Key generation, signing, and verification functions
 - Minimal dependencies
@@ -240,6 +242,74 @@ The Python API mirrors the C API closely, with some Pythonic improvements:
   - `keygen(algorithm, random_data)` - Generate a key pair
   - `sign(algorithm, secret_key, message)` - Sign a message
   - `verify(algorithm, public_key, message, signature)` - Verify a signature
+
+## NodeJS TypeScript API Usage
+
+NodeJS TypeScript bindings allow you to use post-quantum cryptographic algorithms in JavaScript/TypeScript projects.
+
+### Installation
+
+```bash
+# Install the Node.js package
+npm install bitcoinpqc
+```
+
+### Prerequisites
+
+- Node.js 16 or higher
+- The libbitcoinpqc C library must be built and installed
+
+### Example Usage
+
+```typescript
+import { Algorithm, generateKeyPair, sign, verify } from 'bitcoinpqc';
+import crypto from 'crypto';
+
+// Generate random data for key generation
+const randomData = crypto.randomBytes(128);
+
+// Generate a key pair using ML-DSA-44 (CRYSTALS-Dilithium)
+const keypair = generateKeyPair(Algorithm.ML_DSA_44, randomData);
+
+// Create a message to sign
+const message = Buffer.from('Message to sign');
+
+// Sign the message deterministically
+const signature = sign(keypair.secretKey, message);
+
+// Verify the signature
+verify(keypair.publicKey, message, signature);
+// If verification fails, it will throw a PqcError
+
+// You can also verify using the raw signature bytes
+verify(keypair.publicKey, message, signature.bytes);
+```
+
+### NodeJS TypeScript API Reference
+
+The TypeScript API provides a clean, modern interface:
+
+- **Algorithm** - Enum for algorithm selection
+  - `SECP256K1_SCHNORR`
+  - `FN_DSA_512` (FALCON)
+  - `ML_DSA_44` (CRYSTALS-Dilithium)
+  - `SLH_DSA_SHAKE_128S` (SPHINCS+)
+
+- **Classes**
+  - `PublicKey` - Public key wrapper
+  - `SecretKey` - Secret key wrapper with secure handling
+  - `KeyPair` - Container for public/secret key pairs
+  - `Signature` - Signature wrapper
+
+- **Functions**
+  - `publicKeySize(algorithm)` - Get the public key size for an algorithm
+  - `secretKeySize(algorithm)` - Get the secret key size for an algorithm
+  - `signatureSize(algorithm)` - Get the signature size for an algorithm
+  - `generateKeyPair(algorithm, randomData)` - Generate a key pair
+  - `sign(secretKey, message)` - Sign a message
+  - `verify(publicKey, message, signature)` - Verify a signature
+
+For more details, see the [NodeJS TypeScript bindings README](nodejs/README.md).
 
 ## Acknowledgments
 
