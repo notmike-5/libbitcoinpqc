@@ -64,6 +64,40 @@ cd ..
 cargo build --release
 ```
 
+## Fuzz Testing
+
+This library includes fuzz testing targets using [cargo-fuzz](https://github.com/rust-fuzz/cargo-fuzz).
+
+### Prerequisites
+
+```bash
+# Install cargo-fuzz
+cargo install cargo-fuzz
+```
+
+### Available Fuzz Targets
+
+1. **keypair_generation** - Tests key pair generation with different algorithms
+2. **sign_verify** - Tests signature creation and verification
+3. **cross_algorithm** - Tests verification with mismatched keys and signatures from different algorithms
+
+### Running Fuzz Tests
+
+```bash
+# Run a specific fuzz target
+cargo fuzz run keypair_generation
+cargo fuzz run sign_verify
+cargo fuzz run cross_algorithm
+
+# Run a fuzz target for a specific amount of time (in seconds)
+cargo fuzz run keypair_generation -- -max_total_time=60
+
+# Run a fuzz target with a specific number of iterations
+cargo fuzz run sign_verify -- -runs=1000000
+```
+
+See `fuzz/README.md` for more details on fuzz testing.
+
 ## C API Usage
 
 ```c
