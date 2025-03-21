@@ -166,6 +166,79 @@ This library implements the cryptographic primitives required by [BIP-360](https
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
+## Python API Usage
+
+Python bindings are also available for libbitcoinpqc, allowing you to use the post-quantum cryptographic algorithms from Python code.
+
+### Installation
+
+```bash
+# Install the Python package
+cd python
+pip install -e .
+```
+
+### Prerequisites
+
+- Python 3.7 or higher
+- The libbitcoinpqc C library must be built and installed
+
+### Example Usage
+
+```python
+import secrets
+from bitcoinpqc import Algorithm, keygen, sign, verify
+
+# Generate random data for key generation
+random_data = secrets.token_bytes(128)
+
+# Generate a key pair
+algorithm = Algorithm.ML_DSA_44  # CRYSTALS-Dilithium
+keypair = keygen(algorithm, random_data)
+
+# Create a message to sign
+message = b"Hello, Bitcoin PQC!"
+
+# Sign the message
+signature = sign(algorithm, keypair.secret_key, message)
+
+# Verify the signature
+is_valid = verify(algorithm, keypair.public_key, message, signature)
+print(f"Signature valid: {is_valid}")  # Should print True
+
+# Verification with incorrect message will fail
+bad_message = b"Tampered message!"
+is_valid = verify(algorithm, keypair.public_key, bad_message, signature)
+print(f"Signature valid: {is_valid}")  # Should print False
+```
+
+### Python API Reference
+
+The Python API mirrors the C API closely, with some Pythonic improvements:
+
+- **Algorithm** - Enum class for algorithm selection
+  - `SECP256K1_SCHNORR`
+  - `FN_DSA_512` (FALCON)
+  - `ML_DSA_44` (CRYSTALS-Dilithium)
+  - `SLH_DSA_SHAKE_128S` (SPHINCS+)
+
+- **KeyPair** - Class to hold a public/secret key pair
+  - `algorithm` - The algorithm used
+  - `public_key` - The public key as bytes
+  - `secret_key` - The secret key as bytes
+
+- **Signature** - Class to hold a signature
+  - `algorithm` - The algorithm used
+  - `signature` - The signature as bytes
+
+- **Functions**
+  - `public_key_size(algorithm)` - Get the public key size for an algorithm
+  - `secret_key_size(algorithm)` - Get the secret key size for an algorithm
+  - `signature_size(algorithm)` - Get the signature size for an algorithm
+  - `keygen(algorithm, random_data)` - Generate a key pair
+  - `sign(algorithm, secret_key, message)` - Sign a message
+  - `verify(algorithm, public_key, message, signature)` - Verify a signature
+
 ## Acknowledgments
 
 - The original NIST PQC competition teams for their reference implementations
