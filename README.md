@@ -145,6 +145,8 @@ bitcoin_pqc_keypair_free(&keypair);
 
 ## Rust API Usage
 
+Rust docs can be found on [docs.rs](https://docs.rs/bitcoinpqc/latest/bitcoinpqc/).
+
 ```rust
 use bitcoinpqc::{Algorithm, generate_keypair, sign, verify};
 use rand::{RngCore, rngs::OsRng};
@@ -168,7 +170,7 @@ verify(&keypair.public_key, message, &signature).unwrap();
 
 ## Python API Usage
 
-Python bindings are also available for libbitcoinpqc, allowing you to use the post-quantum cryptographic algorithms from Python code.
+[Python bindings are also available for libbitcoinpqc](https://pypi.org/project/bitcoinpqc/0.1.0/), allowing you to use the post-quantum cryptographic algorithms from Python code.
 
 ### Installation
 

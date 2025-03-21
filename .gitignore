@@ -3,3 +3,6 @@
 *.o
 benchmark_results.txt
 __pycache__
+python/build/
+python/dist/
+*.egg-info/

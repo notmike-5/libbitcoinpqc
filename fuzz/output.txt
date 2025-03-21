@@ -1,0 +1,34 @@
+cargo fuzz run sign_verify -- -runs=1000000
+   Compiling libbitcoinpqc-fuzz v0.0.0 (/home/hunter/Projects/pqc/libbitcoinpqc/fuzz)
+    Finished `release` profile [optimized + debuginfo] target(s) in 0.34s
+    Finished `release` profile [optimized + debuginfo] target(s) in 0.01s
+     Running `fuzz/target/x86_64-unknown-linux-gnu/release/sign_verify -artifact_prefix=/home/hunter/Projects/pqc/libbitcoinpqc/fuzz/artifacts/sign_verify/ -runs=1000000 /home/hunter/Projects/pqc/libbitcoinpqc/fuzz/corpus/sign_verify`
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 2551126225
+INFO: Loaded 1 modules   (2575 inline 8-bit counters): 2575 [0x588b29550f00, 0x588b2955190f),
+INFO: Loaded 1 PC tables (2575 PCs): 2575 [0x588b29551910,0x588b2955ba00),
+INFO:        2 files found in /home/hunter/Projects/pqc/libbitcoinpqc/fuzz/corpus/sign_verify
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: seed corpus: files: 2 min: 150b max: 150b total: 300b rss: 44Mb
+#3	INITED cov: 69 ft: 71 corp: 2/300b exec/s: 0 rss: 47Mb
+#4	NEW    cov: 70 ft: 73 corp: 3/416b lim: 150 exec/s: 0 rss: 47Mb L: 116/150 MS: 1 EraseBytes-
+#31	REDUCE cov: 70 ft: 73 corp: 3/406b lim: 150 exec/s: 0 rss: 47Mb L: 106/150 MS: 2 ChangeBit-EraseBytes-
+#43	REDUCE cov: 70 ft: 73 corp: 3/341b lim: 150 exec/s: 0 rss: 47Mb L: 41/150 MS: 2 InsertByte-CrossOver-
+#81	REDUCE cov: 70 ft: 73 corp: 3/327b lim: 150 exec/s: 81 rss: 47Mb L: 27/150 MS: 3 CrossOver-ChangeBinInt-EraseBytes-
+#132	REDUCE cov: 70 ft: 73 corp: 3/315b lim: 150 exec/s: 132 rss: 48Mb L: 15/150 MS: 1 EraseBytes-
+#138	REDUCE cov: 70 ft: 73 corp: 3/312b lim: 150 exec/s: 138 rss: 48Mb L: 12/150 MS: 1 EraseBytes-
+#229	REDUCE cov: 70 ft: 73 corp: 3/306b lim: 150 exec/s: 229 rss: 49Mb L: 6/150 MS: 1 EraseBytes-
+#260	REDUCE cov: 70 ft: 73 corp: 3/305b lim: 150 exec/s: 260 rss: 49Mb L: 5/150 MS: 1 EraseBytes-
+#288	REDUCE cov: 70 ft: 73 corp: 3/304b lim: 150 exec/s: 288 rss: 49Mb L: 4/150 MS: 3 CopyPart-ChangeBinInt-EraseBytes-
+#323	REDUCE cov: 70 ft: 73 corp: 3/302b lim: 150 exec/s: 323 rss: 49Mb L: 2/150 MS: 5 ChangeByte-ShuffleBytes-CopyPart-ChangeBinInt-EraseBytes-
+#395	REDUCE cov: 70 ft: 73 corp: 3/301b lim: 150 exec/s: 395 rss: 50Mb L: 1/150 MS: 2 CopyPart-EraseBytes-
+#4096	pulse  cov: 70 ft: 73 corp: 3/301b lim: 185 exec/s: 512 rss: 71Mb
+#8192	pulse  cov: 70 ft: 73 corp: 3/301b lim: 227 exec/s: 315 rss: 98Mb
+#16384	pulse  cov: 70 ft: 73 corp: 3/301b lim: 302 exec/s: 292 rss: 155Mb
+#32768	pulse  cov: 70 ft: 73 corp: 3/301b lim: 470 exec/s: 244 rss: 275Mb
+#65536	pulse  cov: 70 ft: 73 corp: 3/301b lim: 797 exec/s: 195 rss: 379Mb
+#131072	pulse  cov: 70 ft: 73 corp: 3/301b lim: 1441 exec/s: 187 rss: 379Mb
+#262144	pulse  cov: 70 ft: 73 corp: 3/301b lim: 2744 exec/s: 175 rss: 380Mb
+#524288	pulse  cov: 70 ft: 73 corp: 3/301b lim: 4096 exec/s: 161 rss: 382Mb
+#1000000	DONE   cov: 70 ft: 73 corp: 3/301b lim: 4096 exec/s: 169 rss: 382Mb
+Done 1000000 runs in 5914 second(s)
