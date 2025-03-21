@@ -15,6 +15,16 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+# Platform-specific settings
+if(APPLE)
+    # Set strict floating-point model for macOS to match other platforms
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffp-contract=off -fno-fast-math")
+    # Define FPEMU macro for Falcon to use emulated floating-point on macOS
+    # This avoids platform-specific floating-point behavior
+    add_definitions(-DFALCON_FPEMU=1)
+    message(STATUS "macOS detected: Using emulated floating-point for Falcon")
+endif()
+
 # Include directories
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
