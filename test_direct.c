@@ -48,9 +48,7 @@ int main() {
         keypair.secret_key_size,
         (const uint8_t *)message,
         message_len,
-        &signature,
-        random_data,  // Reuse random data
-        sizeof(random_data)
+        &signature
     );
 
     if (result != BITCOIN_PQC_OK) {
