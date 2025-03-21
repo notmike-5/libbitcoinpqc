@@ -245,7 +245,7 @@ The Python API mirrors the C API closely, with some Pythonic improvements:
 
 ## NodeJS TypeScript API Usage
 
-NodeJS TypeScript bindings allow you to use post-quantum cryptographic algorithms in JavaScript/TypeScript projects.
+[NodeJS TypeScript bindings](https://www.npmjs.com/package/bitcoinpqc) allow you to use post-quantum cryptographic algorithms in JavaScript/TypeScript projects.
 
 ### Installation
 
