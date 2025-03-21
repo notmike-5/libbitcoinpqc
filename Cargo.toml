@@ -1,5 +1,5 @@
 [package]
-name = "libbitcoinpqc"
+name = "bitcoinpqc"
 version = "0.1.0"
 edition = "2021"
 authors = ["Hunter Beast <hunter@surmount.systems>"]
