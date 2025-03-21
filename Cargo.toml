@@ -6,7 +6,7 @@ authors = ["Hunter Beast <hunter@surmount.systems>"]
 description = "Post-Quantum Cryptographic signature algorithms for Bitcoin (BIP-360)"
 repository = "https://github.com/bitcoin/libbitcoinpqc"
 license = "MIT"
-keywords = ["bitcoin", "pqc", "post-quantum-cryptography", "bip-360", "qubit"]
+keywords = ["bitcoin", "pqc", "cryptography", "bip-360", "qubit"]
 
 [dependencies]
 hex = "0.4"
