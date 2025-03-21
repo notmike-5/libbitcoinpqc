@@ -2,10 +2,27 @@
 name = "libbitcoinpqc"
 version = "0.1.0"
 edition = "2021"
-authors = ["Bitcoin PQC Contributors"]
-description = "Post-Quantum Cryptographic signature algorithms for Bitcoin"
+authors = ["Hunter Beast <hunter@surmount.systems>"]
+description = "Post-Quantum Cryptographic signature algorithms for Bitcoin (BIP-360)"
 repository = "https://github.com/bitcoin/libbitcoinpqc"
 license = "MIT"
+keywords = [
+    "bitcoin",
+    "pqc",
+    "post-quantum-cryptography",
+    "signature-algorithms",
+    "bip-360",
+    "qubit",
+    "quantum-resistant",
+    "quantum-secure",
+    "quantum-safe",
+    "quantum-resistant-cryptography",
+    "quantum-safe-cryptography",
+    "post-quantum-signature",
+    "post-quantum-signature-algorithms",
+    "post-quantum-signature-schemes",
+    "post-quantum-signature-schemes",
+]
 
 [dependencies]
 hex = "0.4"
