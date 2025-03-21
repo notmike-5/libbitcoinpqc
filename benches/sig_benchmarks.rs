@@ -79,10 +79,7 @@ fn bench_ml_dsa_44_signing(c: &mut Criterion) {
     let ml_keypair = generate_keypair(Algorithm::ML_DSA_44, &random_data).unwrap();
 
     group.bench_function("ML_DSA_44", |b| {
-        b.iter(|| {
-            let random_data = get_random_data(256);
-            sign(&ml_keypair.secret_key, message, Some(&random_data)).unwrap()
-        });
+        b.iter(|| sign(&ml_keypair.secret_key, message));
     });
 
     group.finish();
@@ -95,7 +92,7 @@ fn bench_ml_dsa_44_verification(c: &mut Criterion) {
     let message = b"This is a test message for benchmarking";
     let random_data = get_random_data(256);
     let ml_keypair = generate_keypair(Algorithm::ML_DSA_44, &random_data).unwrap();
-    let ml_sig = sign(&ml_keypair.secret_key, message, Some(&get_random_data(256))).unwrap();
+    let ml_sig = sign(&ml_keypair.secret_key, message).unwrap();
 
     group.bench_function("ML_DSA_44", |b| {
         b.iter(|| verify(&ml_keypair.public_key, message, &ml_sig).unwrap());
@@ -131,10 +128,7 @@ fn bench_slh_dsa_128s_signing(c: &mut Criterion) {
     let slh_keypair = generate_keypair(Algorithm::SLH_DSA_128S, &random_data).unwrap();
 
     group.bench_function("SLH_DSA_128S", |b| {
-        b.iter(|| {
-            let random_data = get_random_data(256);
-            sign(&slh_keypair.secret_key, message, Some(&random_data)).unwrap()
-        });
+        b.iter(|| sign(&slh_keypair.secret_key, message));
     });
 
     group.finish();
@@ -148,12 +142,7 @@ fn bench_slh_dsa_128s_verification(c: &mut Criterion) {
     let message = b"This is a test message for benchmarking";
     let random_data = get_random_data(256);
     let slh_keypair = generate_keypair(Algorithm::SLH_DSA_128S, &random_data).unwrap();
-    let slh_sig = sign(
-        &slh_keypair.secret_key,
-        message,
-        Some(&get_random_data(256)),
-    )
-    .unwrap();
+    let slh_sig = sign(&slh_keypair.secret_key, message).unwrap();
 
     group.bench_function("SLH_DSA_128S", |b| {
         b.iter(|| verify(&slh_keypair.public_key, message, &slh_sig).unwrap());
@@ -200,7 +189,7 @@ fn bench_fn_dsa_512_signing(c: &mut Criterion) {
         );
 
         // Verify we can sign once before benchmarking
-        let test_sig = sign(&fn_keypair.secret_key, message, Some(&get_random_data(256))).unwrap();
+        let test_sig = sign(&fn_keypair.secret_key, message).unwrap();
         println!("Test signature size: {}", test_sig.bytes.len());
         println!(
             "Test signature first bytes: {:02x?}",
@@ -208,15 +197,12 @@ fn bench_fn_dsa_512_signing(c: &mut Criterion) {
         );
     } else {
         // Generate a test signature without debug output
-        sign(&fn_keypair.secret_key, message, Some(&get_random_data(256))).unwrap();
+        sign(&fn_keypair.secret_key, message).unwrap();
     }
 
     // Now benchmark
     group.bench_function("FN_DSA_512", |b| {
-        b.iter(|| {
-            let random_data = get_random_data(256);
-            sign(&fn_keypair.secret_key, message, Some(&random_data)).unwrap()
-        });
+        b.iter(|| sign(&fn_keypair.secret_key, message));
     });
 
     group.finish();
@@ -229,7 +215,7 @@ fn bench_fn_dsa_512_verification(c: &mut Criterion) {
     let message = b"This is a test message for benchmarking";
     let random_data = get_random_data(256);
     let fn_keypair = generate_keypair(Algorithm::FN_DSA_512, &random_data).unwrap();
-    let fn_sig = sign(&fn_keypair.secret_key, message, Some(&get_random_data(256))).unwrap();
+    let fn_sig = sign(&fn_keypair.secret_key, message).unwrap();
 
     group.bench_function("FN_DSA_512", |b| {
         b.iter(|| verify(&fn_keypair.public_key, message, &fn_sig).unwrap());
@@ -248,7 +234,7 @@ fn bench_sizes(c: &mut Criterion) {
     // ML-DSA-44
     let random_data = get_random_data(256);
     let ml_keypair = generate_keypair(Algorithm::ML_DSA_44, &random_data).unwrap();
-    let ml_sig = sign(&ml_keypair.secret_key, message, Some(&get_random_data(256))).unwrap();
+    let ml_sig = sign(&ml_keypair.secret_key, message).unwrap();
 
     // Store size results
     store_size_result("ml_dsa_44_pubkey", ml_keypair.public_key.bytes.len());
@@ -258,12 +244,7 @@ fn bench_sizes(c: &mut Criterion) {
     // SLH-DSA-128S
     let random_data = get_random_data(256);
     let slh_keypair = generate_keypair(Algorithm::SLH_DSA_128S, &random_data).unwrap();
-    let slh_sig = sign(
-        &slh_keypair.secret_key,
-        message,
-        Some(&get_random_data(256)),
-    )
-    .unwrap();
+    let slh_sig = sign(&slh_keypair.secret_key, message).unwrap();
 
     // Store size results
     store_size_result("slh_dsa_128s_pubkey", slh_keypair.public_key.bytes.len());
@@ -273,7 +254,7 @@ fn bench_sizes(c: &mut Criterion) {
     // FN-DSA-512
     let random_data = get_random_data(256);
     let fn_keypair = generate_keypair(Algorithm::FN_DSA_512, &random_data).unwrap();
-    let fn_sig = sign(&fn_keypair.secret_key, message, Some(&get_random_data(256))).unwrap();
+    let fn_sig = sign(&fn_keypair.secret_key, message).unwrap();
 
     // Store size results
     store_size_result("fn_dsa_512_pubkey", fn_keypair.public_key.bytes.len());

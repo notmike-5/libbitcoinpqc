@@ -157,9 +157,7 @@ bitcoin_pqc_error_t bitcoin_pqc_sign(
     size_t secret_key_size,
     const uint8_t *message,
     size_t message_size,
-    bitcoin_pqc_signature_t *signature,
-    const uint8_t *random_data,
-    size_t random_data_size
+    bitcoin_pqc_signature_t *signature
 ) {
     if (!secret_key || !message || !signature) {
         return BITCOIN_PQC_ERROR_BAD_ARG;
@@ -173,12 +171,6 @@ bitcoin_pqc_error_t bitcoin_pqc_sign(
         DEBUG_PRINT("bitcoin_pqc_sign: Bad key size. Expected %zu, got %zu\n",
                bitcoin_pqc_secret_key_size(algorithm), secret_key_size);
         return BITCOIN_PQC_ERROR_BAD_KEY;
-    }
-
-    // Check random data if provided
-    if (random_data && random_data_size < 64) {
-        DEBUG_PRINT("bitcoin_pqc_sign: Bad random data size. Got %zu\n", random_data_size);
-        return BITCOIN_PQC_ERROR_BAD_ARG;
     }
 
     // Get signature size for buffer allocation
@@ -208,17 +200,17 @@ bitcoin_pqc_error_t bitcoin_pqc_sign(
         case BITCOIN_PQC_ML_DSA_44:
             DEBUG_PRINT("bitcoin_pqc_sign: Calling ml_dsa_44_sign\n");
             result = ml_dsa_44_sign(sig, &actual_sig_len, message, message_size,
-                                  secret_key, random_data, random_data_size);
+                                  secret_key);
             break;
         case BITCOIN_PQC_SLH_DSA_SHAKE_128S:
             DEBUG_PRINT("bitcoin_pqc_sign: Calling slh_dsa_shake_128s_sign\n");
             result = slh_dsa_shake_128s_sign(sig, &actual_sig_len, message, message_size,
-                                           secret_key, random_data, random_data_size);
+                                           secret_key);
             break;
         case BITCOIN_PQC_FN_DSA_512:
             DEBUG_PRINT("bitcoin_pqc_sign: Calling fn_dsa_512_sign\n");
             result = fn_dsa_512_sign(sig, &actual_sig_len, message, message_size,
-                                   secret_key, random_data, random_data_size);
+                                   secret_key);
             break;
         default:
             free(sig);

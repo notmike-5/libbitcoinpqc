@@ -27,15 +27,14 @@
 extern void ml_dsa_init_random_source(const uint8_t *random_data, size_t random_data_size);
 extern void ml_dsa_setup_custom_random(void);
 extern void ml_dsa_restore_original_random(void);
+extern void ml_dsa_derandomize(uint8_t *seed, const uint8_t *m, size_t mlen, const uint8_t *sk);
 
 int ml_dsa_44_sign(
     uint8_t *sig,
     size_t *siglen,
     const uint8_t *m,
     size_t mlen,
-    const uint8_t *sk,
-    const uint8_t *random_data,
-    size_t random_data_size
+    const uint8_t *sk
 ) {
     if (!sig || !siglen || !m || !sk) {
         fprintf(stderr, "ML-DSA sign: Invalid arguments\n");
@@ -44,14 +43,12 @@ int ml_dsa_44_sign(
 
     DEBUG_PRINT("ML-DSA sign: Starting to sign message of length %zu\n", mlen);
 
-    /* Use provided random data if available */
-    if (random_data && random_data_size >= 64) {
-        ml_dsa_init_random_source(random_data, random_data_size);
-        ml_dsa_setup_custom_random();
-        DEBUG_PRINT("ML-DSA sign: Using provided random data of size %zu\n", random_data_size);
-    } else {
-        DEBUG_PRINT("ML-DSA sign: Using system random data\n");
-    }
+    /* Create deterministic randomness from message and secret key */
+    uint8_t deterministic_seed[64];
+    ml_dsa_derandomize(deterministic_seed, m, mlen, sk);
+    ml_dsa_init_random_source(deterministic_seed, sizeof(deterministic_seed));
+    ml_dsa_setup_custom_random();
+    DEBUG_PRINT("ML-DSA sign: Using deterministic signing\n");
 
     /* Set up empty context */
     uint8_t ctx[1] = {0};
@@ -69,9 +66,7 @@ int ml_dsa_44_sign(
     DEBUG_PRINT("ML-DSA sign: crypto_sign_signature returned %d, temp_siglen = %zu\n", result, temp_siglen);
 
     /* Restore original random bytes function if we changed it */
-    if (random_data && random_data_size >= 64) {
-        ml_dsa_restore_original_random();
-    }
+    ml_dsa_restore_original_random();
 
     /* Only copy the signature if it was successful */
     if (result == 0) {

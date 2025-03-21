@@ -92,24 +92,17 @@ static void test_ml_dsa_44_direct(const uint8_t *random_data, size_t random_data
 
     printf("Key generation time: %.2f ms\n", get_time_ms(start, end));
 
-    // Create a message to sign
-    const uint8_t message[] = "This is a test message for PQC signature verification";
-    size_t message_len = strlen((const char *)message);
+    /* Create a message to sign */
+    const char* message_str = "This is a test message for ML-DSA-44 signature verification";
+    const uint8_t* message = (const uint8_t*)message_str;
+    size_t message_len = strlen(message_str);
 
-    // Use fresh random data for signing
-    uint8_t signing_random_data[256];
-    if (get_random_bytes(signing_random_data, sizeof(signing_random_data)) != 0) {
-        printf("Error getting random data for signing\n");
-        free(pk);
-        free(sk);
-        free(sig);
-        return;
-    }
-
-    // Sign the message
+    /* Sign the message */
+    uint8_t sig[ML_DSA_44_SIGNATURE_SIZE];
     size_t sig_len;
+
     clock_gettime(CLOCK_MONOTONIC, &start);
-    result = ml_dsa_44_sign(sig, &sig_len, message, message_len, sk, signing_random_data, sizeof(signing_random_data));
+    result = ml_dsa_44_sign(sig, &sig_len, message, message_len, sk);
     clock_gettime(CLOCK_MONOTONIC, &end);
 
     if (result != 0) {
@@ -206,24 +199,17 @@ static void test_slh_dsa_shake_128s_direct(const uint8_t *random_data, size_t ra
 
     printf("Key generation time: %.2f ms\n", get_time_ms(start, end));
 
-    // Create a message to sign
-    const uint8_t message[] = "This is a test message for PQC signature verification";
-    size_t message_len = strlen((const char *)message);
+    /* Create a message to sign */
+    const char* message_str = "This is a test message for SLH-DSA-Shake-128s signature verification";
+    const uint8_t* message = (const uint8_t*)message_str;
+    size_t message_len = strlen(message_str);
 
-    // Use fresh random data for signing
-    uint8_t signing_random_data[256];
-    if (get_random_bytes(signing_random_data, sizeof(signing_random_data)) != 0) {
-        printf("Error getting random data for signing\n");
-        free(pk);
-        free(sk);
-        free(sig);
-        return;
-    }
-
-    // Sign the message
+    /* Sign the message */
+    uint8_t sig[SLH_DSA_SHAKE_128S_SIGNATURE_SIZE];
     size_t sig_len;
+
     clock_gettime(CLOCK_MONOTONIC, &start);
-    result = slh_dsa_shake_128s_sign(sig, &sig_len, message, message_len, sk, signing_random_data, sizeof(signing_random_data));
+    result = slh_dsa_shake_128s_sign(sig, &sig_len, message, message_len, sk);
     clock_gettime(CLOCK_MONOTONIC, &end);
 
     if (result != 0) {
@@ -320,24 +306,17 @@ static void test_fn_dsa_512_direct(const uint8_t *random_data, size_t random_dat
 
     printf("Key generation time: %.2f ms\n", get_time_ms(start, end));
 
-    // Create a message to sign
-    const uint8_t message[] = "This is a test message for PQC signature verification";
-    size_t message_len = strlen((const char *)message);
+    /* Create a message to sign */
+    const char* message_str = "This is a test message for FN-DSA-512 signature verification";
+    const uint8_t* message = (const uint8_t*)message_str;
+    size_t message_len = strlen(message_str);
 
-    // Use fresh random data for signing
-    uint8_t signing_random_data[256];
-    if (get_random_bytes(signing_random_data, sizeof(signing_random_data)) != 0) {
-        printf("Error getting random data for signing\n");
-        free(pk);
-        free(sk);
-        free(sig);
-        return;
-    }
-
-    // Sign the message
+    /* Sign the message */
+    uint8_t sig[FN_DSA_512_SIG_MAX_SIZE];
     size_t sig_len;
+
     clock_gettime(CLOCK_MONOTONIC, &start);
-    result = fn_dsa_512_sign(sig, &sig_len, message, message_len, sk, signing_random_data, sizeof(signing_random_data));
+    result = fn_dsa_512_sign(sig, &sig_len, message, message_len, sk);
     clock_gettime(CLOCK_MONOTONIC, &end);
 
     if (result != 0) {

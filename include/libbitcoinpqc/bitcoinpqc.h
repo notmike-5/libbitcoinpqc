@@ -112,8 +112,6 @@ void bitcoin_pqc_keypair_free(bitcoin_pqc_keypair_t *keypair);
  * @param message The message to sign
  * @param message_size Size of the message
  * @param signature Pointer to signature structure to populate
- * @param random_data Optional user-provided random data (entropy), can be NULL for deterministic signing
- * @param random_data_size Size of random data, must be >= 64 bytes if provided
  * @return BITCOIN_PQC_OK on success, error code otherwise
  */
 bitcoin_pqc_error_t bitcoin_pqc_sign(
@@ -122,9 +120,7 @@ bitcoin_pqc_error_t bitcoin_pqc_sign(
     size_t secret_key_size,
     const uint8_t *message,
     size_t message_size,
-    bitcoin_pqc_signature_t *signature,
-    const uint8_t *random_data,
-    size_t random_data_size
+    bitcoin_pqc_signature_t *signature
 );
 
 /**

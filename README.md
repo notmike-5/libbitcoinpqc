@@ -81,7 +81,7 @@ bitcoin_pqc_keygen(BITCOIN_PQC_MLDSA44, &keypair, random_data, sizeof(random_dat
 const uint8_t message[] = "Message to sign";
 bitcoin_pqc_signature_t signature;
 bitcoin_pqc_sign(BITCOIN_PQC_MLDSA44, keypair.secret_key, keypair.secret_key_size,
-                message, sizeof(message) - 1, &signature, random_data, sizeof(random_data));
+                message, sizeof(message) - 1, &signature);
 
 // Verify the signature
 bitcoin_pqc_error_t result = bitcoin_pqc_verify(BITCOIN_PQC_MLDSA44,
@@ -110,12 +110,8 @@ let keypair = generate_keypair(Algorithm::MLDSA44, &random_data).unwrap();
 // Create a message to sign
 let message = b"Message to sign";
 
-// Generate random data for signing (optional for some algorithms)
-let mut sig_random_data = vec![0u8; 64];
-OsRng.fill_bytes(&mut sig_random_data);
-
-// Sign the message
-let signature = sign(&keypair.secret_key, message, Some(&sig_random_data)).unwrap();
+// Sign the message deterministically
+let signature = sign(&keypair.secret_key, message).unwrap();
 
 // Verify the signature
 verify(&keypair.public_key, message, &signature).unwrap();
@@ -124,6 +120,7 @@ verify(&keypair.public_key, message, &signature).unwrap();
 ## Security Notes
 
 - This library does not provide its own random number generation. Users must provide entropy from a secure source.
+- Random data is required for key generation, but not for signing. All signatures are deterministic, based on the message and secret key.
 - The implementations are based on reference code from the NIST PQC standardization process and are not production-hardened.
 - Care should be taken to securely manage secret keys in applications.
 

@@ -40,8 +40,6 @@ int slh_dsa_shake_128s_keygen(
  * @param m Message to sign
  * @param mlen Message length
  * @param sk Secret key
- * @param random_data Optional user-provided random data (entropy), can be NULL
- * @param random_data_size Size of random data, must be >= 64 bytes if provided
  * @return 0 on success, non-zero on failure
  */
 int slh_dsa_shake_128s_sign(
@@ -49,9 +47,7 @@ int slh_dsa_shake_128s_sign(
     size_t *siglen,
     const uint8_t *m,
     size_t mlen,
-    const uint8_t *sk,
-    const uint8_t *random_data,
-    size_t random_data_size
+    const uint8_t *sk
 );
 
 /**
@@ -71,5 +67,14 @@ int slh_dsa_shake_128s_verify(
     size_t mlen,
     const uint8_t *pk
 );
+
+/**
+ * Generates deterministic randomness from a message and secret key
+ * @param seed Output buffer for the generated randomness (64 bytes)
+ * @param m Message to sign
+ * @param mlen Message length
+ * @param sk Secret key
+ */
+void slh_dsa_derandomize(uint8_t *seed, const uint8_t *m, size_t mlen, const uint8_t *sk);
 
 #endif /* BITCOIN_PQC_SLH_DSA_H */

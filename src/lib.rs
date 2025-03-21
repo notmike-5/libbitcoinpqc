@@ -194,26 +194,11 @@ pub fn generate_keypair(algorithm: Algorithm, random_data: &[u8]) -> Result<KeyP
 ///
 /// * `secret_key` - The secret key to sign with
 /// * `message` - The message to sign
-/// * `random_data` - Optional random bytes for signing (must be at least 64 bytes if provided)
 ///
 /// # Returns
 ///
 /// A signature on success, or an error
-pub fn sign(
-    secret_key: &SecretKey,
-    message: &[u8],
-    random_data: Option<&[u8]>,
-) -> Result<Signature, PqcError> {
-    let (rand_ptr, rand_len) = match random_data {
-        Some(data) => {
-            if data.len() < 64 {
-                return Err(PqcError::BadArgument);
-            }
-            (data.as_ptr(), data.len())
-        }
-        None => (ptr::null(), 0),
-    };
-
+pub fn sign(secret_key: &SecretKey, message: &[u8]) -> Result<Signature, PqcError> {
     unsafe {
         let mut signature = bitcoin_pqc_signature_t {
             algorithm: secret_key.algorithm.into(),
@@ -228,8 +213,6 @@ pub fn sign(
             message.as_ptr(),
             message.len(),
             &mut signature,
-            rand_ptr,
-            rand_len,
         );
 
         if result != bitcoin_pqc_error_t::BITCOIN_PQC_OK {

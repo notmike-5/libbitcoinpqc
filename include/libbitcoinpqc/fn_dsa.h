@@ -43,8 +43,6 @@ int fn_dsa_512_keygen(
  * @param m Message to sign
  * @param mlen Message length
  * @param sk Secret key
- * @param random_data Optional user-provided random data (entropy), can be NULL
- * @param random_data_size Size of random data, must be >= 64 bytes if provided
  * @return 0 on success, non-zero on failure
  */
 int fn_dsa_512_sign(
@@ -52,9 +50,7 @@ int fn_dsa_512_sign(
     size_t *siglen,
     const uint8_t *m,
     size_t mlen,
-    const uint8_t *sk,
-    const uint8_t *random_data,
-    size_t random_data_size
+    const uint8_t *sk
 );
 
 /* Verification Functions */

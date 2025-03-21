@@ -65,6 +65,7 @@ pub mod doc_bindings {
 
     pub unsafe fn bitcoin_pqc_keypair_free(_keypair: *mut bitcoin_pqc_keypair_t) {}
 
+    #[allow(clippy::too_many_arguments)]
     pub unsafe fn bitcoin_pqc_sign(
         _algorithm: bitcoin_pqc_algorithm_t,
         _secret_key: *const ::std::os::raw::c_uchar,
@@ -72,8 +73,6 @@ pub mod doc_bindings {
         _message: *const ::std::os::raw::c_uchar,
         _message_len: usize,
         _signature: *mut bitcoin_pqc_signature_t,
-        _random_data: *const ::std::os::raw::c_uchar,
-        _random_data_len: usize,
     ) -> bitcoin_pqc_error_t {
         unimplemented!("This is a doc stub")
     }
@@ -171,8 +170,6 @@ pub mod ide_bindings {
         _message: *const ::std::os::raw::c_uchar,
         _message_len: usize,
         _signature: *mut bitcoin_pqc_signature_t,
-        _random_data: *const ::std::os::raw::c_uchar,
-        _random_data_len: usize,
     ) -> bitcoin_pqc_error_t {
         unimplemented!("This is an IDE stub")
     }

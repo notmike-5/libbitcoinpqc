@@ -45,13 +45,9 @@ fn test_algorithm(algorithm: Algorithm, name: &str, random_data: &[u8]) {
     // Create a message to sign
     let message = b"This is a test message for PQC signature verification";
 
-    // Generate random data for signing (optional for some algorithms)
-    let mut sig_random_data = vec![0u8; 64];
-    OsRng.fill_bytes(&mut sig_random_data);
-
-    // Sign the message
+    // Sign the message deterministically
     let start = Instant::now();
-    let signature = match sign(&keypair.secret_key, message, Some(&sig_random_data)) {
+    let signature = match sign(&keypair.secret_key, message) {
         Ok(sig) => sig,
         Err(e) => {
             println!("Error signing message: {}", e);

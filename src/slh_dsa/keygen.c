@@ -29,15 +29,10 @@ int slh_dsa_shake_128s_keygen(
         return -1;
     }
 
-    /* Set up custom random bytes function with user-provided entropy */
-    slh_dsa_init_random_source(random_data, random_data_size);
-    slh_dsa_setup_custom_random();
-
-    /* Call the reference implementation's key generation function */
-    int result = crypto_sign_keypair(pk, sk);
-
-    /* Restore original random bytes function */
-    slh_dsa_restore_original_random();
-
-    return result;
+    /*
+     * For fully deterministic key generation, use the first 3*SPX_N bytes
+     * of the random data directly as the seed instead of going through
+     * the random data wrapper.
+     */
+    return crypto_sign_seed_keypair(pk, sk, random_data);
 }
