@@ -30,6 +30,21 @@ This library serves as the cryptographic foundation for the Bitcoin QuBit soft f
 
 See [REPORT.md](REPORT.md) for performance and size comparison to secp256k1.
 
+## Security Notes
+
+- This library does not provide its own random number generation. Users must provide entropy from a secure source.
+- Random data is required for key generation, but not for signing. All signatures are deterministic, based on the message and secret key.
+- The implementations are based on reference code from the NIST PQC standardization process and are not production-hardened.
+- Care should be taken to securely manage secret keys in applications.
+
+## BIP-360 Compliance
+
+This library implements the cryptographic primitives required by [BIP-360](https://github.com/bitcoin/bips/blob/master/bip-0360.mediawiki), which defines the standard for post-quantum resistant signatures in Bitcoin. It supports all three recommended algorithms with the specified parameter sets.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
 ## Dependencies
 
 Cryptographic dependencies included in this project:
@@ -151,21 +166,6 @@ let signature = sign(&keypair.secret_key, message).unwrap();
 verify(&keypair.public_key, message, &signature).unwrap();
 ```
 
-## Security Notes
-
-- This library does not provide its own random number generation. Users must provide entropy from a secure source.
-- Random data is required for key generation, but not for signing. All signatures are deterministic, based on the message and secret key.
-- The implementations are based on reference code from the NIST PQC standardization process and are not production-hardened.
-- Care should be taken to securely manage secret keys in applications.
-
-## BIP-360 Compliance
-
-This library implements the cryptographic primitives required by [BIP-360](https://github.com/bitcoin/bips/blob/master/bip-0360.mediawiki), which defines the standard for post-quantum resistant signatures in Bitcoin. It supports all three recommended algorithms with the specified parameter sets.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## Python API Usage
 
 Python bindings are also available for libbitcoinpqc, allowing you to use the post-quantum cryptographic algorithms from Python code.
@@ -243,4 +243,4 @@ The Python API mirrors the C API closely, with some Pythonic improvements:
 
 - The original NIST PQC competition teams for their reference implementations
 - The NIST PQC standardization process for advancing post-quantum cryptography
-- The Bitcoin QuBit soft fork contributors and BIP-360 authors
+- The Bitcoin QuBit soft fork contributors and BIP-360 contributors
