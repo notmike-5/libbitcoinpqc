@@ -1,5 +1,5 @@
 use bitcoinpqc::{generate_keypair, sign, verify, Algorithm};
-use rand::{rngs::OsRng, RngCore};
+use rand::{rng, RngCore};
 use std::time::Instant;
 
 fn main() {
@@ -9,7 +9,7 @@ fn main() {
 
     // Generate random data for key generation
     let mut random_data = vec![0u8; 128];
-    OsRng.fill_bytes(&mut random_data);
+    rng().fill_bytes(&mut random_data);
 
     // Test each algorithm
     test_algorithm(Algorithm::ML_DSA_44, "ML-DSA-44", &random_data);

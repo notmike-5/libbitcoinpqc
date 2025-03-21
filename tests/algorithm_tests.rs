@@ -2,12 +2,12 @@ use bitcoinpqc::{
     generate_keypair, public_key_size, secret_key_size, sign, signature_size, verify, Algorithm,
 };
 use hex::decode as hex_decode;
-use rand::{rngs::OsRng, RngCore};
+use rand::{rng, RngCore};
 
 // Original random data generation function (commented out for deterministic tests)
 fn _get_random_bytes_original(size: usize) -> Vec<u8> {
     let mut bytes = vec![0u8; size];
-    OsRng.fill_bytes(&mut bytes);
+    rng().fill_bytes(&mut bytes);
     bytes
 }
 
@@ -105,7 +105,7 @@ fn get_random_bytes(size: usize) -> Vec<u8> {
             // Fallback for other sizes (e.g., 127 for error condition tests)
             // This still uses random data since it's typically for error cases
             let mut bytes = vec![0u8; size];
-            OsRng.fill_bytes(&mut bytes);
+            rng().fill_bytes(&mut bytes);
             bytes
         }
     }

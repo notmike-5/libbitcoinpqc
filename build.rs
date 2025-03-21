@@ -23,7 +23,7 @@ fn main() {
         .bitfield_enum("bitcoin_pqc_algorithm_t")
         .bitfield_enum("bitcoin_pqc_error_t")
         // Tell cargo to invalidate the built crate whenever the wrapper changes
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks))
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         // Suppress warnings for unused code in the generated bindings
         .allowlist_function("bitcoin_pqc_.*")
         .allowlist_type("bitcoin_pqc_.*")

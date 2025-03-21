@@ -1,7 +1,6 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 use lazy_static::lazy_static;
-use rand::{rngs::OsRng, RngCore};
-use secp256k1::{Keypair, Secp256k1};
+use rand::{rng, RngCore};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Write;
@@ -27,19 +26,10 @@ macro_rules! debug_println {
     };
 }
 
-// Function to create a 32-byte array from data for secp256k1
-fn create_32byte_array(data: &[u8]) -> [u8; 32] {
-    use sha2::{Digest, Sha256};
-    let mut hasher = Sha256::new();
-    hasher.update(data);
-    let result = hasher.finalize();
-    result.into()
-}
-
 // Get random data of a specified size
 fn get_random_data(size: usize) -> Vec<u8> {
     let mut random_data = vec![0u8; size];
-    OsRng.fill_bytes(&mut random_data);
+    rng().fill_bytes(&mut random_data);
     random_data
 }
 
@@ -287,77 +277,6 @@ fn bench_sizes(c: &mut Criterion) {
         fn_sig.bytes.len()
     );
 
-    // secp256k1 for comparison
-    let secp = Secp256k1::new();
-    let keypair = Keypair::new(&secp, &mut OsRng);
-    let secret_key = keypair.secret_key();
-    let (xonly_pubkey, _) = keypair.x_only_public_key();
-    let msg_bytes = create_32byte_array(message);
-    let sig = secp.sign_schnorr(&msg_bytes, &keypair);
-
-    // Store size results for secp256k1
-    store_size_result("secp256k1_pubkey", xonly_pubkey.serialize().len());
-    store_size_result("secp256k1_seckey", secret_key.secret_bytes().len());
-    store_size_result("secp256k1_sig", sig.as_ref().len());
-
-    debug_println!("secp256k1:");
-    debug_println!(
-        "  Public key: {}, Secret key: {}, Signature: {}",
-        xonly_pubkey.serialize().len(),
-        secret_key.secret_bytes().len(),
-        sig.as_ref().len()
-    );
-
-    group.finish();
-}
-
-// SECP256K1 BENCHMARKS
-
-fn bench_secp256k1_keygen(c: &mut Criterion) {
-    let mut group = c.benchmark_group("secp256k1_keygen");
-    configure_group(&mut group);
-
-    group.bench_function("secp256k1", |b| {
-        b.iter(|| Keypair::new(&Secp256k1::new(), &mut OsRng));
-    });
-
-    group.finish();
-}
-
-fn bench_secp256k1_signing(c: &mut Criterion) {
-    let mut group = c.benchmark_group("secp256k1_signing");
-    configure_group(&mut group);
-
-    let message = b"This is a test message for benchmarking";
-    let secp = Secp256k1::new();
-    let keypair = Keypair::new(&secp, &mut OsRng);
-    let msg_bytes = create_32byte_array(message);
-
-    group.bench_function("secp256k1", |b| {
-        b.iter(|| secp.sign_schnorr(&msg_bytes, &keypair));
-    });
-
-    group.finish();
-}
-
-fn bench_secp256k1_verification(c: &mut Criterion) {
-    let mut group = c.benchmark_group("secp256k1_verification");
-    configure_group(&mut group);
-
-    let message = b"This is a test message for benchmarking";
-    let secp = Secp256k1::new();
-    let keypair = Keypair::new(&secp, &mut OsRng);
-    let msg_bytes = create_32byte_array(message);
-    let sig = secp.sign_schnorr(&msg_bytes, &keypair);
-    let xonly_pubkey = keypair.x_only_public_key().0;
-
-    group.bench_function("secp256k1", |b| {
-        b.iter(|| {
-            secp.verify_schnorr(&sig, &msg_bytes, &xonly_pubkey)
-                .unwrap()
-        });
-    });
-
     group.finish();
 }
 
@@ -528,44 +447,17 @@ fn generate_report(_c: &mut Criterion) {
 
 // Organize the benchmarks by algorithm rather than by operation
 criterion_group!(
-    ml_dsa_44_benches,
+    benches,
     bench_ml_dsa_44_keygen,
     bench_ml_dsa_44_signing,
-    bench_ml_dsa_44_verification
-);
-
-criterion_group!(
-    slh_dsa_128s_benches,
+    bench_ml_dsa_44_verification,
     bench_slh_dsa_128s_keygen,
     bench_slh_dsa_128s_signing,
-    bench_slh_dsa_128s_verification
-);
-
-criterion_group!(
-    fn_dsa_512_benches,
+    bench_slh_dsa_128s_verification,
     bench_fn_dsa_512_keygen,
     bench_fn_dsa_512_signing,
-    bench_fn_dsa_512_verification
+    bench_fn_dsa_512_verification,
+    bench_sizes,
+    generate_report
 );
-
-criterion_group!(sizes_benches, bench_sizes);
-
-// Create criterion group for secp256k1 benchmarks
-criterion_group!(
-    secp256k1_benches,
-    bench_secp256k1_keygen,
-    bench_secp256k1_signing,
-    bench_secp256k1_verification
-);
-
-// Special group to generate report after all benchmarks complete
-criterion_group!(report_generation, generate_report);
-
-criterion_main!(
-    ml_dsa_44_benches,
-    slh_dsa_128s_benches,
-    fn_dsa_512_benches,
-    secp256k1_benches,
-    sizes_benches,
-    report_generation,
-);
+criterion_main!(benches);
