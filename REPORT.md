@@ -24,7 +24,7 @@ All values show actual sizes with relative comparison to secp256k1.
 | secp256k1 | 32 bytes (1.00x) | 32 bytes (1.00x) | 64 bytes (1.00x) |
 | ML-DSA-44 | 1312 bytes (41.00x) | 2560 bytes (80.00x) | 2420 bytes (37.81x) |
 | SLH-DSA-128S | 32 bytes (1.00x) | 64 bytes (2.00x) | 7856 bytes (122.75x) |
-| FN-DSA-512 | 897 bytes (28.03x) | 1281 bytes (40.03x) | 666 bytes (10.41x) |
+| FN-DSA-512 | 897 bytes (28.03x) | 1281 bytes (40.03x) | 656 bytes (10.25x) |
 
 ## Summary
 

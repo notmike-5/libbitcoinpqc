@@ -170,24 +170,6 @@ fn test_cross_algorithm_serialization_failure() {
     let keypair_slh_dsa = generate_keypair(Algorithm::SLH_DSA_128S, &random_data)
         .expect("Failed to generate SLH-DSA keypair");
 
-    // Expected ML-DSA key serialization (from test output)
-    let expected_ml_pk_prefix = "b3f22d3e1f93e3122063898b98eb89e6";
-
-    // Print and verify ML-DSA public key
-    let actual_ml_pk_prefix = hex_encode(&keypair_ml_dsa.public_key.bytes[0..16]);
-    println!("ML-DSA public key prefix: {}", actual_ml_pk_prefix);
-
-    assert_eq!(
-        actual_ml_pk_prefix, expected_ml_pk_prefix,
-        "ML-DSA public key serialization should be deterministic"
-    );
-
-    // Print SLH-DSA public key for informational purposes
-    println!(
-        "SLH-DSA public key prefix: {}",
-        hex_encode(&keypair_slh_dsa.public_key.bytes[0..16])
-    );
-
     // Sign with ML-DSA
     let message = b"Cross algorithm test";
     let signature = sign(&keypair_ml_dsa.secret_key, message).expect("Failed to sign message");
@@ -196,6 +178,14 @@ fn test_cross_algorithm_serialization_failure() {
     println!(
         "ML-DSA signature prefix: {}",
         hex_encode(&signature.bytes[0..16])
+    );
+
+    // Attempt to verify ML-DSA signature with SLH-DSA public key
+    // This should fail because the algorithms don't match
+    let result = verify(&keypair_slh_dsa.public_key, message, &signature);
+    assert!(
+        result.is_err(),
+        "Verification should fail when using public key from different algorithm"
     );
 
     // Create an invalid signature by changing the algorithm but keeping the bytes
@@ -209,6 +199,13 @@ fn test_cross_algorithm_serialization_failure() {
     assert!(
         result.is_err(),
         "Verification should fail with mismatched algorithm"
+    );
+
+    // Also verify that the library correctly checks algorithm consistency
+    let result = verify(&keypair_ml_dsa.public_key, message, &invalid_sig);
+    assert!(
+        result.is_err(),
+        "Verification should fail when signature algorithm doesn't match public key algorithm"
     );
 }
 

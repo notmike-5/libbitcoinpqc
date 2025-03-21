@@ -245,7 +245,6 @@ fn test_slh_dsa_128s_keygen_sign_verify() {
     );
 }
 
-/*
 #[test]
 fn test_fn_dsa_512_keygen_sign_verify() {
     println!("Starting FN-DSA-512 test");
@@ -312,7 +311,6 @@ fn test_fn_dsa_512_keygen_sign_verify() {
         "FN-DSA-512 verification should fail with modified message"
     );
 }
-*/
 
 #[test]
 fn test_deterministic_signing() {
@@ -358,7 +356,6 @@ fn test_deterministic_signing() {
         "Second SLH-DSA-128S signature should be valid"
     );
 
-    /* Temporarily disable FN-DSA test
     // Test FN-DSA-512 deterministic signing
     let random_data = get_random_bytes(128);
     let keypair = generate_keypair(Algorithm::FN_DSA_512, &random_data)
@@ -366,11 +363,9 @@ fn test_deterministic_signing() {
     let message = b"Test message for deterministic signing";
 
     // Generate first signature
-    let signature1 = sign(&keypair.secret_key, message)
-        .expect("Failed to create first signature");
+    let signature1 = sign(&keypair.secret_key, message).expect("Failed to create first signature");
     // Generate second signature (should be identical with deterministic signing)
-    let signature2 = sign(&keypair.secret_key, message)
-        .expect("Failed to create second signature");
+    let signature2 = sign(&keypair.secret_key, message).expect("Failed to create second signature");
 
     // Verify both signatures
     assert!(
@@ -381,7 +376,6 @@ fn test_deterministic_signing() {
         verify(&keypair.public_key, message, &signature2).is_ok(),
         "Second FN-DSA-512 signature should be valid"
     );
-    */
 }
 
 #[test]
@@ -403,14 +397,12 @@ fn test_error_conditions() {
         "SLH-DSA-128S should fail with insufficient random data"
     );
 
-    /* Temporarily disable FN-DSA test
     // Test FN-DSA-512
     let result = generate_keypair(Algorithm::FN_DSA_512, &short_random);
     assert!(
         result.is_err(),
         "FN-DSA-512 should fail with insufficient random data"
     );
-    */
 
     // Create valid keypairs for ML-DSA and SLH-DSA
     let random_data = get_random_bytes(128);
@@ -418,8 +410,8 @@ fn test_error_conditions() {
         .expect("Failed to generate ML-DSA-44 keypair");
     let slh_keypair = generate_keypair(Algorithm::SLH_DSA_128S, &random_data)
         .expect("Failed to generate SLH-DSA-128S keypair");
-    //let fn_keypair = generate_keypair(Algorithm::FN_DSA_512, &random_data)
-    //    .expect("Failed to generate FN-DSA-512 keypair");
+    let fn_keypair = generate_keypair(Algorithm::FN_DSA_512, &random_data)
+        .expect("Failed to generate FN-DSA-512 keypair");
 
     // Create message for testing
     let message = b"Test message";
@@ -427,8 +419,7 @@ fn test_error_conditions() {
     // Create signatures
     let ml_sig = sign(&ml_keypair.secret_key, message).expect("Failed to sign with ML-DSA-44");
     let slh_sig = sign(&slh_keypair.secret_key, message).expect("Failed to sign with SLH-DSA-128S");
-    //let fn_sig = sign(&fn_keypair.secret_key, message)
-    //    .expect("Failed to sign with FN-DSA-512");
+    let fn_sig = sign(&fn_keypair.secret_key, message).expect("Failed to sign with FN-DSA-512");
 
     // Try to verify with mismatched algorithms
     let result = verify(&slh_keypair.public_key, message, &ml_sig);
@@ -437,21 +428,18 @@ fn test_error_conditions() {
         "Verification should fail with ML-DSA-44 signature and SLH-DSA-128S key"
     );
 
-    /* Temporarily disable FN-DSA test
-    let result = verify(&fn_keypair.public_key, message, &ml_sig);
-    assert!(
-        result.is_err(),
-        "Verification should fail with ML-DSA-44 signature and FN-DSA-512 key"
-    );
-    */
-
     let result = verify(&ml_keypair.public_key, message, &slh_sig);
     assert!(
         result.is_err(),
         "Verification should fail with SLH-DSA-128S signature and ML-DSA-44 key"
     );
 
-    /* Temporarily disable FN-DSA test
+    let result = verify(&fn_keypair.public_key, message, &ml_sig);
+    assert!(
+        result.is_err(),
+        "Verification should fail with ML-DSA-44 signature and FN-DSA-512 key"
+    );
+
     let result = verify(&fn_keypair.public_key, message, &slh_sig);
     assert!(
         result.is_err(),
@@ -469,5 +457,4 @@ fn test_error_conditions() {
         result.is_err(),
         "Verification should fail with FN-DSA-512 signature and SLH-DSA-128S key"
     );
-    */
 }
