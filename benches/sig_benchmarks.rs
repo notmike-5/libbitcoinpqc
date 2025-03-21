@@ -283,7 +283,8 @@ fn bench_sizes(c: &mut Criterion) {
 // Function to generate the markdown report
 fn generate_report(_c: &mut Criterion) {
     // Create the report file
-    let mut file = File::create("REPORT.md").expect("Failed to create REPORT.md file");
+    let mut file =
+        File::create("benches/REPORT.md").expect("Failed to create benches/REPORT.md file");
 
     // Write header
     writeln!(
@@ -442,7 +443,7 @@ fn generate_report(_c: &mut Criterion) {
     writeln!(file, "This benchmark comparison demonstrates the performance and size tradeoffs between post-quantum cryptographic algorithms and traditional elliptic curve cryptography (secp256k1).").unwrap();
     writeln!(file, "\nWhile post-quantum algorithms generally have larger keys and signatures, they provide security against quantum computer attacks that could break elliptic curve cryptography.").unwrap();
 
-    println!("Report generated successfully: REPORT.md");
+    println!("Report generated successfully: benches/REPORT.md");
 }
 
 // Organize the benchmarks by algorithm rather than by operation
