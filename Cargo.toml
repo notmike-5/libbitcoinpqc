@@ -12,6 +12,7 @@ keywords = ["bitcoin", "pqc", "cryptography", "bip-360", "qubit"]
 hex = "0.4"
 lazy_static = "1.5.0"
 libc = "0.2"
+bitmask-enum = "2.2.5"
 
 [build-dependencies]
 bindgen = "0.71.1"

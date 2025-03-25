@@ -76,6 +76,7 @@ name = "bitcoinpqc"
 version = "0.1.0"
 dependencies = [
  "bindgen",
+ "bitmask-enum",
  "cmake",
  "criterion",
  "hex",
@@ -91,6 +92,16 @@ name = "bitflags"
 version = "2.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5c8214115b7bf84099f1309324e63141d4c5d7cc26862f97a0a857dbefe165bd"
+
+[[package]]
+name = "bitmask-enum"
+version = "2.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e6cbbb8f56245b5a479b30a62cdc86d26e2f35c2b9f594bc4671654b03851380"
+dependencies = [
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "block-buffer"
