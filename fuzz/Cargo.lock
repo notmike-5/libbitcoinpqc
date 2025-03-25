@@ -38,10 +38,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "bitcoinpqc"
+version = "0.1.0"
+dependencies = [
+ "bindgen",
+ "bitmask-enum",
+ "cmake",
+ "hex",
+ "libc",
+]
+
+[[package]]
 name = "bitflags"
 version = "2.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5c8214115b7bf84099f1309324e63141d4c5d7cc26862f97a0a857dbefe165bd"
+
+[[package]]
+name = "bitmask-enum"
+version = "2.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e6cbbb8f56245b5a479b30a62cdc86d26e2f35c2b9f594bc4671654b03851380"
+dependencies = [
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "cc"
@@ -126,27 +147,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "lazy_static"
-version = "1.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
-
-[[package]]
-name = "libbitcoinpqc"
-version = "0.1.0"
-dependencies = [
- "bindgen",
- "cmake",
- "hex",
- "lazy_static",
- "libc",
-]
-
-[[package]]
 name = "libbitcoinpqc-fuzz"
 version = "0.0.0"
 dependencies = [
- "libbitcoinpqc",
+ "bitcoinpqc",
  "libfuzzer-sys",
 ]
 
@@ -178,9 +182,9 @@ dependencies = [
 
 [[package]]
 name = "log"
-version = "0.4.26"
+version = "0.4.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "30bde2b3dc3671ae49d8e2e9f044c7c005836e7a023ee57cffa25ab82764bb9e"
+checksum = "13dc2df351e3202783a1fe0d44375f7295ffb4049267b0f3018346dc122a1d94"
 
 [[package]]
 name = "memchr"

@@ -6,6 +6,8 @@ use std::error::Error;
 use std::fmt;
 use std::ptr;
 
+use bitmask_enum::bitmask;
+
 // Include the auto-generated bindings using our wrapper
 // Make it pub(crate) so doctests can access these symbols
 pub(crate) mod bindings_include;
@@ -55,7 +57,7 @@ impl From<bitcoin_pqc_error_t> for Result<(), PqcError> {
 }
 
 /// PQC Algorithm type
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[bitmask(u8)]
 pub enum Algorithm {
     /// BIP-340 Schnorr + X-Only - Elliptic Curve Digital Signature Algorithm
     SECP256K1_SCHNORR,
@@ -74,6 +76,7 @@ impl From<Algorithm> for bitcoin_pqc_algorithm_t {
             Algorithm::FN_DSA_512 => bitcoin_pqc_algorithm_t::BITCOIN_PQC_FN_DSA_512,
             Algorithm::ML_DSA_44 => bitcoin_pqc_algorithm_t::BITCOIN_PQC_ML_DSA_44,
             Algorithm::SLH_DSA_128S => bitcoin_pqc_algorithm_t::BITCOIN_PQC_SLH_DSA_SHAKE_128S,
+            _ => panic!("Invalid algorithm"),
         }
     }
 }

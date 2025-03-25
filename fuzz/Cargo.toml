@@ -10,7 +10,7 @@ cargo-fuzz = true
 [dependencies]
 libfuzzer-sys = "0.4"
 
-[dependencies.libbitcoinpqc]
+[dependencies.bitcoinpqc]
 path = ".."
 
 # Renamed and repurposed from the original target

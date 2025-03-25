@@ -1,11 +1,12 @@
-use criterion::{criterion_group, criterion_main, Criterion};
-use lazy_static::lazy_static;
-use rand::{rng, RngCore};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Write;
 use std::sync::Mutex;
+use std::sync::OnceLock;
 use std::time::Duration;
+
+use criterion::{criterion_group, criterion_main, Criterion};
+use rand::{rng, RngCore};
 
 use bitcoinpqc::{generate_keypair, sign, verify, Algorithm};
 
@@ -13,8 +14,11 @@ use bitcoinpqc::{generate_keypair, sign, verify, Algorithm};
 const DEBUG_MODE: bool = false;
 
 // Global storage for sizes
-lazy_static! {
-    static ref SIZE_RESULTS: Mutex<HashMap<String, usize>> = Mutex::new(HashMap::new());
+static SIZE_RESULTS: OnceLock<Mutex<HashMap<String, usize>>> = OnceLock::new();
+
+// Helper function to get or initialize the size results
+fn get_size_results() -> &'static Mutex<HashMap<String, usize>> {
+    SIZE_RESULTS.get_or_init(|| Mutex::new(HashMap::new()))
 }
 
 // Conditional debug print macro
@@ -40,7 +44,8 @@ fn configure_group(group: &mut criterion::BenchmarkGroup<criterion::measurement:
 
 // Helper function to store size results
 fn store_size_result(name: &str, value: usize) {
-    let mut results = SIZE_RESULTS.lock().unwrap();
+    let results = get_size_results();
+    let mut results = results.lock().unwrap();
     results.insert(name.to_string(), value);
 }
 
@@ -295,7 +300,8 @@ fn generate_report(_c: &mut Criterion) {
     writeln!(file, "\nThis report compares the performance and size characteristics of post-quantum cryptographic algorithms with secp256k1.\n").unwrap();
 
     // Get size results
-    let size_results = SIZE_RESULTS.lock().unwrap();
+    let size_results = get_size_results();
+    let size_results = size_results.lock().unwrap();
 
     // Extract secp256k1 size values
     let secp_pubkey_size = size_results.get("secp256k1_pubkey").cloned().unwrap_or(32);

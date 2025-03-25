@@ -1,8 +1,9 @@
+use hex::decode as hex_decode;
+use rand::{rng, RngCore};
+
 use bitcoinpqc::{
     generate_keypair, public_key_size, secret_key_size, sign, signature_size, verify, Algorithm,
 };
-use hex::decode as hex_decode;
-use rand::{rng, RngCore};
 
 // Original random data generation function (commented out for deterministic tests)
 fn _get_random_bytes_original(size: usize) -> Vec<u8> {
