@@ -2,11 +2,12 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
-use bitmask_enum::bitmask;
-
 use std::error::Error;
 use std::fmt;
 use std::ptr;
+
+use bitmask_enum::bitmask;
+
 // Include the auto-generated bindings using our wrapper
 // Make it pub(crate) so doctests can access these symbols
 pub(crate) mod bindings_include;
