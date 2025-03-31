@@ -2,6 +2,7 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
+use std::convert::TryFrom;
 use std::error::Error;
 use std::fmt;
 use std::ptr;
@@ -162,6 +163,45 @@ pub struct PublicKey {
     pub bytes: Vec<u8>,
 }
 
+impl PublicKey {
+    /// Creates a PublicKey from a hex string.
+    ///
+    /// Validates the length of the decoded bytes against the expected public key size for the algorithm.
+    pub fn from_str(algorithm: Algorithm, s: &str) -> Result<Self, PqcError> {
+        let bytes = hex::decode(s).map_err(|_| PqcError::BadArgument)?;
+        Self::try_from((algorithm, bytes.as_slice()))
+    }
+
+    /// Creates a PublicKey directly from a byte slice.
+    ///
+    /// Note: This does not validate the length of the byte slice. Use `try_from` for validation.
+    pub fn from_bytes(algorithm: Algorithm, bytes: &[u8]) -> Self {
+        PublicKey {
+            algorithm,
+            bytes: bytes.to_vec(),
+        }
+    }
+}
+
+impl TryFrom<(Algorithm, &[u8])> for PublicKey {
+    type Error = PqcError;
+
+    /// Attempts to create a PublicKey from an algorithm and a byte slice.
+    ///
+    /// Validates that the byte slice length matches the expected public key size for the algorithm.
+    fn try_from(value: (Algorithm, &[u8])) -> Result<Self, Self::Error> {
+        let (algorithm, bytes) = value;
+        if bytes.len() != public_key_size(algorithm) {
+            Err(PqcError::BadKey)
+        } else {
+            Ok(PublicKey {
+                algorithm,
+                bytes: bytes.to_vec(),
+            })
+        }
+    }
+}
+
 /// Secret key wrapper
 #[derive(Debug, PartialEq, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -174,6 +214,45 @@ pub struct SecretKey {
     pub bytes: Vec<u8>,
 }
 
+impl SecretKey {
+    /// Creates a SecretKey from a hex string.
+    ///
+    /// Validates the length of the decoded bytes against the expected secret key size for the algorithm.
+    pub fn from_str(algorithm: Algorithm, s: &str) -> Result<Self, PqcError> {
+        let bytes = hex::decode(s).map_err(|_| PqcError::BadArgument)?;
+        Self::try_from((algorithm, bytes.as_slice()))
+    }
+
+    /// Creates a SecretKey directly from a byte slice.
+    ///
+    /// Note: This does not validate the length of the byte slice. Use `try_from` for validation.
+    pub fn from_bytes(algorithm: Algorithm, bytes: &[u8]) -> Self {
+        SecretKey {
+            algorithm,
+            bytes: bytes.to_vec(),
+        }
+    }
+}
+
+impl TryFrom<(Algorithm, &[u8])> for SecretKey {
+    type Error = PqcError;
+
+    /// Attempts to create a SecretKey from an algorithm and a byte slice.
+    ///
+    /// Validates that the byte slice length matches the expected secret key size for the algorithm.
+    fn try_from(value: (Algorithm, &[u8])) -> Result<Self, Self::Error> {
+        let (algorithm, bytes) = value;
+        if bytes.len() != secret_key_size(algorithm) {
+            Err(PqcError::BadKey)
+        } else {
+            Ok(SecretKey {
+                algorithm,
+                bytes: bytes.to_vec(),
+            })
+        }
+    }
+}
+
 /// Signature wrapper
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -184,6 +263,45 @@ pub struct Signature {
     /// The raw signature bytes (serialized as hex)
     #[cfg_attr(feature = "serde", serde(with = "hex_bytes"))]
     pub bytes: Vec<u8>,
+}
+
+impl Signature {
+    /// Creates a Signature from a hex string.
+    ///
+    /// Validates the length of the decoded bytes against the expected signature size for the algorithm.
+    pub fn from_str(algorithm: Algorithm, s: &str) -> Result<Self, PqcError> {
+        let bytes = hex::decode(s).map_err(|_| PqcError::BadArgument)?;
+        Self::try_from((algorithm, bytes.as_slice()))
+    }
+
+    /// Creates a Signature directly from a byte slice.
+    ///
+    /// Note: This does not validate the length of the byte slice. Use `try_from` for validation.
+    pub fn from_bytes(algorithm: Algorithm, bytes: &[u8]) -> Self {
+        Signature {
+            algorithm,
+            bytes: bytes.to_vec(),
+        }
+    }
+}
+
+impl TryFrom<(Algorithm, &[u8])> for Signature {
+    type Error = PqcError;
+
+    /// Attempts to create a Signature from an algorithm and a byte slice.
+    ///
+    /// Validates that the byte slice length matches the expected signature size for the algorithm.
+    fn try_from(value: (Algorithm, &[u8])) -> Result<Self, Self::Error> {
+        let (algorithm, bytes) = value;
+        if bytes.len() != signature_size(algorithm) {
+            Err(PqcError::BadSignature)
+        } else {
+            Ok(Signature {
+                algorithm,
+                bytes: bytes.to_vec(),
+            })
+        }
+    }
 }
 
 impl Drop for SecretKey {
