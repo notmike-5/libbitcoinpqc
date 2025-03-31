@@ -8,6 +8,9 @@ use std::ptr;
 
 use bitmask_enum::bitmask;
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 // Include the auto-generated bindings using our wrapper
 // Make it pub(crate) so doctests can access these symbols
 pub(crate) mod bindings_include;
@@ -16,6 +19,7 @@ use bindings_include::*;
 
 /// Error type for PQC operations
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum PqcError {
     /// Invalid arguments provided
     BadArgument,
@@ -58,6 +62,7 @@ impl From<bitcoin_pqc_error_t> for Result<(), PqcError> {
 
 /// PQC Algorithm type
 #[bitmask(u8)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum Algorithm {
     /// BIP-340 Schnorr + X-Only - Elliptic Curve Digital Signature Algorithm
     SECP256K1_SCHNORR,
@@ -83,6 +88,7 @@ impl From<Algorithm> for bitcoin_pqc_algorithm_t {
 
 /// Public key wrapper
 #[derive(Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct PublicKey {
     /// The algorithm this key belongs to
     pub algorithm: Algorithm,
@@ -92,6 +98,7 @@ pub struct PublicKey {
 
 /// Secret key wrapper
 #[derive(Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct SecretKey {
     /// The algorithm this key belongs to
     pub algorithm: Algorithm,
@@ -101,6 +108,7 @@ pub struct SecretKey {
 
 /// Signature wrapper
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Signature {
     /// The algorithm this signature belongs to
     pub algorithm: Algorithm,
@@ -119,6 +127,7 @@ impl Drop for SecretKey {
 
 /// Key pair containing both public and secret keys
 #[derive(Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct KeyPair {
     /// The public key
     pub public_key: PublicKey,

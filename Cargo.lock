@@ -83,6 +83,7 @@ dependencies = [
  "libc",
  "rand 0.9.0",
  "secp256k1",
+ "serde",
  "sha2",
 ]
 
