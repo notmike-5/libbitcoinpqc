@@ -11,6 +11,70 @@ use bitmask_enum::bitmask;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "serde")]
+mod hex_bytes {
+    use serde::{de::Error, Deserialize, Deserializer, Serializer};
+    use std::vec::Vec; // Ensure Vec is in scope
+
+    pub fn serialize<S>(bytes: &Vec<u8>, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&hex::encode(bytes))
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        hex::decode(s).map_err(Error::custom)
+    }
+}
+
+#[cfg(feature = "serde")]
+mod algorithm_serde {
+    use super::Algorithm;
+    use serde::{de::Error, Deserialize, Deserializer, Serializer};
+
+    pub fn serialize<S>(algorithm: &Algorithm, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        // Serialize as the string name of the variant
+        let s = match *algorithm {
+            Algorithm::SECP256K1_SCHNORR => "SECP256K1_SCHNORR",
+            Algorithm::FN_DSA_512 => "FN_DSA_512",
+            Algorithm::ML_DSA_44 => "ML_DSA_44",
+            Algorithm::SLH_DSA_128S => "SLH_DSA_128S",
+            _ => return Err(serde::ser::Error::custom("Unknown algorithm variant")),
+        };
+        serializer.serialize_str(s)
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Algorithm, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        match s.as_str() {
+            "SECP256K1_SCHNORR" => Ok(Algorithm::SECP256K1_SCHNORR),
+            "FN_DSA_512" => Ok(Algorithm::FN_DSA_512),
+            "ML_DSA_44" => Ok(Algorithm::ML_DSA_44),
+            "SLH_DSA_128S" => Ok(Algorithm::SLH_DSA_128S),
+            _ => Err(Error::unknown_variant(
+                &s,
+                &[
+                    "SECP256K1_SCHNORR",
+                    "FN_DSA_512",
+                    "ML_DSA_44",
+                    "SLH_DSA_128S",
+                ],
+            )),
+        }
+    }
+}
+
 // Include the auto-generated bindings using our wrapper
 // Make it pub(crate) so doctests can access these symbols
 pub(crate) mod bindings_include;
@@ -87,32 +151,38 @@ impl From<Algorithm> for bitcoin_pqc_algorithm_t {
 }
 
 /// Public key wrapper
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct PublicKey {
     /// The algorithm this key belongs to
+    #[cfg_attr(feature = "serde", serde(with = "algorithm_serde"))]
     pub algorithm: Algorithm,
-    /// The raw key bytes
+    /// The raw key bytes (serialized as hex)
+    #[cfg_attr(feature = "serde", serde(with = "hex_bytes"))]
     pub bytes: Vec<u8>,
 }
 
 /// Secret key wrapper
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct SecretKey {
     /// The algorithm this key belongs to
+    #[cfg_attr(feature = "serde", serde(with = "algorithm_serde"))]
     pub algorithm: Algorithm,
-    /// The raw key bytes
+    /// The raw key bytes (serialized as hex)
+    #[cfg_attr(feature = "serde", serde(with = "hex_bytes"))]
     pub bytes: Vec<u8>,
 }
 
 /// Signature wrapper
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Signature {
     /// The algorithm this signature belongs to
+    #[cfg_attr(feature = "serde", serde(with = "algorithm_serde"))]
     pub algorithm: Algorithm,
-    /// The raw signature bytes
+    /// The raw signature bytes (serialized as hex)
+    #[cfg_attr(feature = "serde", serde(with = "hex_bytes"))]
     pub bytes: Vec<u8>,
 }
 
@@ -126,7 +196,7 @@ impl Drop for SecretKey {
 }
 
 /// Key pair containing both public and secret keys
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct KeyPair {
     /// The public key
