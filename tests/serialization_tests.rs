@@ -472,6 +472,31 @@ fn test_serde_roundtrip() {
             algorithm
         );
 
+        // --- Verification Tests ---
+        // Verify reconstructed signature with reconstructed public key
+        let result1 = verify(&reconstructed_pk, message, &reconstructed_sig);
+        assert!(
+            result1.is_ok(),
+            "Verification failed: reconstructed_pk with reconstructed_sig for {:?}",
+            algorithm
+        );
+
+        // Verify original signature with reconstructed public key
+        let result2 = verify(&reconstructed_pk, message, &signature);
+        assert!(
+            result2.is_ok(),
+            "Verification failed: reconstructed_pk with original signature for {:?}",
+            algorithm
+        );
+
+        // Verify reconstructed signature with original public key
+        let result3 = verify(&keypair.public_key, message, &reconstructed_sig);
+        assert!(
+            result3.is_ok(),
+            "Verification failed: original public_key with reconstructed_sig for {:?}",
+            algorithm
+        );
+
         println!("Serde roundtrip test passed for {:?}", algorithm);
     }
 }
