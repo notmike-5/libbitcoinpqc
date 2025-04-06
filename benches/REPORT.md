@@ -9,9 +9,9 @@ All values show relative performance compared to secp256k1 (lower is better).
 | Algorithm | Key Generation | Signing | Verification |
 |-----------|----------------|---------|--------------|
 | secp256k1 | 1.00x | 1.00x | 1.00x |
+| FN-DSA-512 | ~8.5x | ~9.2x | ~7.6x |
 | ML-DSA-44 | ~5.2x | ~3.7x | ~4.1x |
 | SLH-DSA-128S | ~120x | ~80x | ~90x |
-| FN-DSA-512 | ~8.5x | ~9.2x | ~7.6x |
 
 *Note: Performance values are estimates based on benchmarks. Lower values are better (e.g., 2x means twice as slow as secp256k1).*
 
@@ -19,12 +19,12 @@ All values show relative performance compared to secp256k1 (lower is better).
 
 All values show actual sizes with relative comparison to secp256k1.
 
-| Algorithm | Public Key | Secret Key | Signature |
-|-----------|------------|------------|-----------|
-| secp256k1 | 32 bytes (1.00x) | 32 bytes (1.00x) | 64 bytes (1.00x) |
-| ML-DSA-44 | 1312 bytes (41.00x) | 2560 bytes (80.00x) | 2420 bytes (37.81x) |
-| SLH-DSA-128S | 32 bytes (1.00x) | 64 bytes (2.00x) | 7856 bytes (122.75x) |
-| FN-DSA-512 | 897 bytes (28.03x) | 1281 bytes (40.03x) | 656 bytes (10.25x) |
+| Algorithm | Secret Key | Public Key | Signature | Public Key + Signature |
+|-----------|------------|------------|-----------|------------------------|
+| secp256k1 | 32 bytes (1.00x) | 32 bytes (1.00x) | 64 bytes (1.00x) | 96 bytes (1.00x) |
+| FN-DSA-512 | 1281 bytes (40.03x) | 897 bytes (28.03x) | 656 bytes (10.25x) | 1553 bytes (16.18x) |
+| ML-DSA-44 | 2560 bytes (80.00x) | 1312 bytes (41.00x) | 2420 bytes (37.81x) | 3732 bytes (38.88x) |
+| SLH-DSA-128S | 64 bytes (2.00x) | 32 bytes (1.00x) | 7856 bytes (122.75x) | 7888 bytes (82.17x) |
 
 ## Summary
 
