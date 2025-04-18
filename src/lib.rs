@@ -588,13 +588,14 @@ pub fn verify(
                 .or(Err(PqcError::BadSignature))
         }
         pqc_alg => {
-            // Length checks (already done in constructors, but maybe useful for defense-in-depth?)
-            if signature.bytes.len() != signature_size(pqc_alg) {
-                return Err(PqcError::BadSignature);
-            }
+            // Length check for public key (still useful)
             if public_key.bytes.len() != public_key_size(pqc_alg) {
                 return Err(PqcError::BadKey);
             }
+
+            // NOTE: We do NOT check the signature length here against signature_size(pqc_alg)
+            // because some algorithms like FN-DSA have variable signature lengths.
+            // The C library's verify function should handle invalid lengths internally.
 
             // PQC Verification logic using FFI
             unsafe {
