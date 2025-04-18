@@ -2,16 +2,16 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
+#[cfg(feature = "serde")]
 use std::convert::TryFrom;
 use std::error::Error as StdError;
 use std::fmt;
-use std::hash::{Hash, Hasher};
+use std::hash::Hash;
 use std::ptr;
 
 use bitmask_enum::bitmask;
 use secp256k1::{
-    schnorr, All, KeyPair as SecpKeyPair, Message, Secp256k1, SecretKey as SecpSecretKey,
-    Verification, XOnlyPublicKey,
+    schnorr, All, Keypair as SecpKeypair, Secp256k1, SecretKey as SecpSecretKey, XOnlyPublicKey,
 };
 
 #[cfg(feature = "serde")]
@@ -35,49 +35,6 @@ mod hex_bytes {
     {
         let s = String::deserialize(deserializer)?;
         hex::decode(s).map_err(Error::custom)
-    }
-}
-
-#[cfg(feature = "serde")]
-mod algorithm_serde {
-    use super::Algorithm;
-    use serde::{de::Error, Deserialize, Deserializer, Serializer};
-
-    pub fn serialize<S>(algorithm: &Algorithm, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        // Serialize as the string name of the variant
-        let s = match *algorithm {
-            Algorithm::SECP256K1_SCHNORR => "SECP256K1_SCHNORR",
-            Algorithm::FN_DSA_512 => "FN_DSA_512",
-            Algorithm::ML_DSA_44 => "ML_DSA_44",
-            Algorithm::SLH_DSA_128S => "SLH_DSA_128S",
-            _ => return Err(serde::ser::Error::custom("Unknown algorithm variant")),
-        };
-        serializer.serialize_str(s)
-    }
-
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<Algorithm, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let s = String::deserialize(deserializer)?;
-        match s.as_str() {
-            "SECP256K1_SCHNORR" => Ok(Algorithm::SECP256K1_SCHNORR),
-            "FN_DSA_512" => Ok(Algorithm::FN_DSA_512),
-            "ML_DSA_44" => Ok(Algorithm::ML_DSA_44),
-            "SLH_DSA_128S" => Ok(Algorithm::SLH_DSA_128S),
-            _ => Err(Error::unknown_variant(
-                &s,
-                &[
-                    "SECP256K1_SCHNORR",
-                    "FN_DSA_512",
-                    "ML_DSA_44",
-                    "SLH_DSA_128S",
-                ],
-            )),
-        }
     }
 }
 
@@ -152,7 +109,8 @@ impl From<bitcoin_pqc_error_t> for Result<(), PqcError> {
 
 /// PQC Algorithm type
 #[bitmask(u8)]
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, PartialOrd, Ord)]
+// We derive serde conditionally, other traits like Debug, Clone, Eq, Hash etc.
+// should be provided by the included C bindings or the bitmask macro.
 #[cfg_attr(
     feature = "serde",
     derive(Serialize, Deserialize),
@@ -409,19 +367,23 @@ pub fn generate_keypair(algorithm: Algorithm, random_data: &[u8]) -> Result<KeyP
         let secp = Secp256k1::<All>::new(); // Context needed for key derivation
 
         // Attempt to create secret key from the provided data
-        let sk = SecpSecretKey::from_slice(random_data).map_err(|_| PqcError::BadKey)?;
+        let sk_result = SecpSecretKey::from_slice(random_data);
+        let sk = sk_result.map_err(|_| PqcError::BadKey)?;
 
-        // Derive the public key
-        let pk = XOnlyPublicKey::from_secret_key(&secp, &sk);
+        // Create KeyPair from secret key
+        let keypair = SecpKeypair::from_secret_key(&secp, &sk);
+
+        // Derive the public key using from_keypair
+        let (pk, _parity) = XOnlyPublicKey::from_keypair(&keypair); // Destructure the tuple
 
         // Construct the structs
         let public_key = PublicKey {
             algorithm: Algorithm::SECP256K1_SCHNORR,
-            bytes: pk.serialize().to_vec(),
+            bytes: pk.serialize().to_vec(), // Serialize the XOnlyPublicKey part
         };
         let secret_key = SecretKey {
             algorithm: Algorithm::SECP256K1_SCHNORR,
-            bytes: sk[..].to_vec(), // SecretKey derefs to [u8; 32]
+            bytes: sk.as_ref().to_vec(), // Use as_ref() to get &[u8] slice
         };
         Ok(KeyPair {
             public_key,
@@ -521,14 +483,14 @@ pub fn sign(secret_key: &SecretKey, message: &[u8]) -> Result<Signature, PqcErro
             // Parse secret key
             let sk = secret_key.secp256k1_key()?;
 
-            // Create KeyPair (needed for sign_schnorr in 0.25.0)
-            let keypair = SecpKeyPair::from_secret_key(&secp, &sk);
+            // Create Keypair
+            let keypair = SecpKeypair::from_secret_key(&secp, &sk);
 
-            // Parse message hash
-            let msg = Message::from_slice(message)?;
+            // Message is already assumed to be a 32-byte hash, use directly
+            // let msg = Message::from_digest(message.try_into().expect("message is 32 bytes"))?;
 
-            // Sign
-            let schnorr_sig = secp.sign_schnorr(&msg, &keypair);
+            // Sign using sign_schnorr_no_aux_rand with the raw message slice
+            let schnorr_sig = secp.sign_schnorr_no_aux_rand(message, &keypair);
 
             // Construct result Signature
             Ok(Signature {
@@ -617,12 +579,13 @@ pub fn verify(
             if message.len() != 32 {
                 return Err(PqcError::BadArgument); // Or a more specific error?
             }
-            let msg = Message::from_slice(message)?;
+            // Message is already assumed to be a 32-byte hash, use directly
+            // let msg = Message::from_digest(message.try_into().expect("message is 32 bytes"))?;
 
-            secp.verify_schnorr(&sig, &msg, &pk)
-                .map_err(|e| PqcError::Secp256k1Error(e)) // Convert secp error
-                .and_then(|()| Ok(()))
-                .or(Err(PqcError::BadSignature)) // If verify fails, it's a bad signature
+            // Verify using verify_schnorr with the raw message slice
+            secp.verify_schnorr(&sig, message, &pk)
+                .map_err(PqcError::Secp256k1Error)
+                .or(Err(PqcError::BadSignature))
         }
         pqc_alg => {
             // Length checks (already done in constructors, but maybe useful for defense-in-depth?)
