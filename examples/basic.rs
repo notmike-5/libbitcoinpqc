@@ -18,7 +18,7 @@ fn main() {
 }
 
 fn test_algorithm(algorithm: Algorithm, name: &str, random_data: &[u8]) {
-    println!("Testing {} algorithm:", name);
+    println!("Testing {name} algorithm:");
     println!("------------------------");
 
     // Get key and signature sizes
@@ -26,21 +26,21 @@ fn test_algorithm(algorithm: Algorithm, name: &str, random_data: &[u8]) {
     let sk_size = bitcoinpqc::secret_key_size(algorithm);
     let sig_size = bitcoinpqc::signature_size(algorithm);
 
-    println!("Public key size: {} bytes", pk_size);
-    println!("Secret key size: {} bytes", sk_size);
-    println!("Signature size: {} bytes", sig_size);
+    println!("Public key size: {pk_size} bytes");
+    println!("Secret key size: {sk_size} bytes");
+    println!("Signature size: {sig_size} bytes");
 
     // Generate a key pair
     let start = Instant::now();
     let keypair = match generate_keypair(algorithm, random_data) {
         Ok(kp) => kp,
         Err(e) => {
-            println!("Error generating key pair: {}", e);
+            println!("Error generating key pair: {e}");
             return;
         }
     };
     let duration = start.elapsed();
-    println!("Key generation time: {:?}", duration);
+    println!("Key generation time: {duration:?}");
 
     // Create a message to sign
     let message = b"This is a test message for PQC signature verification";
@@ -50,22 +50,22 @@ fn test_algorithm(algorithm: Algorithm, name: &str, random_data: &[u8]) {
     let signature = match sign(&keypair.secret_key, message) {
         Ok(sig) => sig,
         Err(e) => {
-            println!("Error signing message: {}", e);
+            println!("Error signing message: {e}");
             return;
         }
     };
     let duration = start.elapsed();
-    println!("Signing time: {:?}", duration);
+    println!("Signing time: {duration:?}");
     println!("Actual signature size: {} bytes", signature.bytes.len());
 
     // Verify the signature
     let start = Instant::now();
     match verify(&keypair.public_key, message, &signature) {
         Ok(()) => println!("Signature verified successfully!"),
-        Err(e) => println!("Signature verification failed: {}", e),
+        Err(e) => println!("Signature verification failed: {e}"),
     }
     let duration = start.elapsed();
-    println!("Verification time: {:?}", duration);
+    println!("Verification time: {duration:?}");
 
     // Try to verify with a modified message
     let modified_message = b"This is a MODIFIED message for PQC signature verification";
