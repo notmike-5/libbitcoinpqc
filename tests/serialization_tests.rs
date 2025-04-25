@@ -42,7 +42,7 @@ fn test_public_key_serialization() {
 
     // Print public key prefix for informational purposes
     let pk_prefix = hex_encode(&keypair.public_key.bytes[0..16]);
-    println!("ML-DSA-44 Public key prefix: {}", pk_prefix);
+    println!("ML-DSA-44 Public key prefix: {pk_prefix}");
 
     // Check the public key has the expected length
     assert_eq!(
@@ -94,8 +94,8 @@ fn test_secret_key_serialization() {
     // Print key prefixes for diagnostic purposes
     let sk_prefix = hex_encode(&keypair.secret_key.bytes[0..16]);
     let pk_prefix = hex_encode(&keypair.public_key.bytes[0..16]);
-    println!("SLH-DSA-128S Secret key prefix: {}", sk_prefix);
-    println!("SLH-DSA-128S Public key prefix: {}", pk_prefix);
+    println!("SLH-DSA-128S Secret key prefix: {sk_prefix}");
+    println!("SLH-DSA-128S Public key prefix: {pk_prefix}");
 
     // Extract the secret key bytes
     let sk_bytes = keypair.secret_key.bytes.clone();
@@ -226,7 +226,7 @@ fn test_serialization_consistency() {
 
     // Print and verify ML-DSA public key
     let actual_ml_pk_prefix = hex_encode(&ml_keypair.public_key.bytes[0..16]);
-    println!("ML-DSA-44 public key prefix: {}", actual_ml_pk_prefix);
+    println!("ML-DSA-44 public key prefix: {actual_ml_pk_prefix}");
 
     assert_eq!(
         actual_ml_pk_prefix, expected_ml_pk_prefix,
@@ -235,7 +235,7 @@ fn test_serialization_consistency() {
 
     // Print and verify ML-DSA secret key
     let actual_ml_sk_prefix = hex_encode(&ml_keypair.secret_key.bytes[0..16]);
-    println!("ML-DSA-44 secret key prefix: {}", actual_ml_sk_prefix);
+    println!("ML-DSA-44 secret key prefix: {actual_ml_sk_prefix}");
 
     assert_eq!(
         actual_ml_sk_prefix, expected_ml_sk_prefix,
