@@ -22,7 +22,7 @@ All values show actual sizes with relative comparison to secp256k1.
 | Algorithm | Secret Key | Public Key | Signature | Public Key + Signature |
 |-----------|------------|------------|-----------|------------------------|
 | secp256k1 | 32 bytes (1.00x) | 32 bytes (1.00x) | 64 bytes (1.00x) | 96 bytes (1.00x) |
-| FN-DSA-512 | 1281 bytes (40.03x) | 897 bytes (28.03x) | 656 bytes (10.25x) | 1553 bytes (16.18x) |
+| FN-DSA-512 | 1281 bytes (40.03x) | 897 bytes (28.03x) | 654 bytes (10.22x) | 1551 bytes (16.16x) |
 | ML-DSA-44 | 2560 bytes (80.00x) | 1312 bytes (41.00x) | 2420 bytes (37.81x) | 3732 bytes (38.88x) |
 | SLH-DSA-128S | 64 bytes (2.00x) | 32 bytes (1.00x) | 7856 bytes (122.75x) | 7888 bytes (82.17x) |
 
