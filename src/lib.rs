@@ -73,8 +73,8 @@ impl fmt::Display for PqcError {
             PqcError::AlgorithmMismatch => {
                 write!(f, "Public key and signature algorithms mismatch")
             }
-            PqcError::Secp256k1Error(e) => write!(f, "Secp256k1 error: {}", e),
-            PqcError::Other(code) => write!(f, "Unexpected error code: {}", code),
+            PqcError::Secp256k1Error(e) => write!(f, "Secp256k1 error: {e}"),
+            PqcError::Other(code) => write!(f, "Unexpected error code: {code}"),
         }
     }
 }

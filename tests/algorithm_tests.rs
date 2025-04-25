@@ -154,7 +154,7 @@ fn test_ml_dsa_44_keygen_sign_verify() {
 
     // Test signing and verification
     let message = b"ML-DSA-44 Test Message";
-    println!("Message to sign: {:?}", message);
+    println!("Message to sign: {message:?}");
 
     let signature = sign(&keypair.secret_key, message).expect("Failed to sign with ML-DSA-44");
 
@@ -170,16 +170,16 @@ fn test_ml_dsa_44_keygen_sign_verify() {
     // Verify the signature
     println!("Verifying signature...");
     let result = verify(&keypair.public_key, message, &signature);
-    println!("Verification result: {:?}", result);
+    println!("Verification result: {result:?}");
 
     assert!(result.is_ok(), "ML-DSA-44 signature verification failed");
 
     // Try to verify with a modified message - should fail
     let modified_message = b"ML-DSA-44 Modified Message";
-    println!("Modified message: {:?}", modified_message);
+    println!("Modified message: {modified_message:?}");
 
     let result = verify(&keypair.public_key, modified_message, &signature);
-    println!("Verification with modified message result: {:?}", result);
+    println!("Verification with modified message result: {result:?}");
 
     assert!(
         result.is_err(),
@@ -213,7 +213,7 @@ fn test_slh_dsa_128s_keygen_sign_verify() {
 
     // Test signing and verification
     let message = b"SLH-DSA-128S Test Message";
-    println!("Message to sign: {:?}", message);
+    println!("Message to sign: {message:?}");
 
     let signature = sign(&keypair.secret_key, message).expect("Failed to sign with SLH-DSA-128S");
 
@@ -229,16 +229,16 @@ fn test_slh_dsa_128s_keygen_sign_verify() {
     // Verify the signature
     println!("Verifying signature...");
     let result = verify(&keypair.public_key, message, &signature);
-    println!("Verification result: {:?}", result);
+    println!("Verification result: {result:?}");
 
     assert!(result.is_ok(), "SLH-DSA-128S signature verification failed");
 
     // Try to verify with a modified message - should fail
     let modified_message = b"SLH-DSA-128S Modified Message";
-    println!("Modified message: {:?}", modified_message);
+    println!("Modified message: {modified_message:?}");
 
     let result = verify(&keypair.public_key, modified_message, &signature);
-    println!("Verification with modified message result: {:?}", result);
+    println!("Verification with modified message result: {result:?}");
 
     assert!(
         result.is_err(),
@@ -272,7 +272,7 @@ fn test_fn_dsa_512_keygen_sign_verify() {
 
     // Test signing and verification
     let message = b"FN-DSA-512 Test Message";
-    println!("Message to sign: {:?}", message);
+    println!("Message to sign: {message:?}");
 
     let signature = sign(&keypair.secret_key, message).expect("Failed to sign with FN-DSA-512");
 
@@ -296,16 +296,16 @@ fn test_fn_dsa_512_keygen_sign_verify() {
     // Verify the signature
     println!("Verifying signature...");
     let result = verify(&keypair.public_key, message, &signature);
-    println!("Verification result: {:?}", result);
+    println!("Verification result: {result:?}");
 
     assert!(result.is_ok(), "FN-DSA-512 signature verification failed");
 
     // Try to verify with a modified message - should fail
     let modified_message = b"FN-DSA-512 Modified Message";
-    println!("Modified message: {:?}", modified_message);
+    println!("Modified message: {modified_message:?}");
 
     let result = verify(&keypair.public_key, modified_message, &signature);
-    println!("Verification with modified message result: {:?}", result);
+    println!("Verification with modified message result: {result:?}");
 
     assert!(
         result.is_err(),
