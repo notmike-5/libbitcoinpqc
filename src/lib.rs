@@ -150,7 +150,7 @@ impl TryFrom<String> for Algorithm {
             "FN_DSA_512" => Ok(Algorithm::FN_DSA_512),
             "ML_DSA_44" => Ok(Algorithm::ML_DSA_44),
             "SLH_DSA_128S" => Ok(Algorithm::SLH_DSA_128S),
-            _ => Err(format!("Unknown algorithm string: {}", s)),
+            _ => Err(format!("Unknown algorithm string: {s}")),
         }
     }
 }
