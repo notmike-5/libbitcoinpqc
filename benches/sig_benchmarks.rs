@@ -346,8 +346,7 @@ fn generate_report(_c: &mut Criterion) {
     writeln!(file, "|-----------|------------|------------|-----------|").unwrap();
     writeln!(
         file,
-        "| secp256k1 | {} bytes (1.00x) | {} bytes (1.00x) | {} bytes (1.00x) |",
-        secp_pubkey_size, secp_seckey_size, secp_sig_size
+        "| secp256k1 | {secp_pubkey_size} bytes (1.00x) | {secp_seckey_size} bytes (1.00x) | {secp_sig_size} bytes (1.00x) |"
     )
     .unwrap();
 
