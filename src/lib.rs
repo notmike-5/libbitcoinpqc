@@ -168,6 +168,14 @@ impl From<Algorithm> for String {
     }
 }
 
+/// Creates an Algorithm variant infallibly from an index 0..3.
+/// Maps 0 -> SECP256K1_SCHNORR (1), 1 -> FN_DSA_512 (2), 2 -> ML_DSA_44 (4), 3 -> SLH_DSA_128S (8)
+pub fn algorithm_from_index(index: u8) -> Algorithm {
+    let valid_index = index % 4; // Ensure value is within 0..3
+    let bits = 1u8 << valid_index; // Map 0->1, 1->2, 2->4, 3->8
+    Algorithm::from(bits)
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct PublicKey {

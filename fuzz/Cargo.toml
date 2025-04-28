@@ -36,3 +36,19 @@ path = "fuzz_targets/cross_algorithm_fuzz.rs"
 test = false
 doc = false
 bench = false
+
+# New target for key parsing
+[[bin]]
+name = "key_parsing"
+path = "fuzz_targets/key_parsing_fuzz.rs"
+test = false
+doc = false
+bench = false
+
+# New target for signature parsing
+[[bin]]
+name = "signature_parsing"
+path = "fuzz_targets/signature_parsing_fuzz.rs"
+test = false
+doc = false
+bench = false

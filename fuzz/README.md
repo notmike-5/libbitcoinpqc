@@ -12,31 +12,49 @@ cargo install cargo-fuzz
 
 ## Available Fuzz Targets
 
-1. **keypair_generation** - Tests key pair generation with different algorithms
-2. **sign_verify** - Tests signature creation and verification
-3. **cross_algorithm** - Tests verification with mismatched keys and signatures from different algorithms
+1. **`keypair_generation`** - Tests key pair generation with different algorithms using fuzzed randomness.
+2. **`sign_verify`** - Tests signature creation and verification using generated keys and fuzzed messages.
+3. **`cross_algorithm`** - Tests verification with mismatched keys and signatures from different algorithms.
+4. **`key_parsing`** - Tests parsing of arbitrary byte sequences into `PublicKey` and `SecretKey` structs across algorithms.
+5. **`signature_parsing`** - Tests parsing of arbitrary byte sequences into `Signature` structs across algorithms.
 
 ## Running the Fuzz Tests
 
 To run a specific fuzz target:
 
-```
+```bash
 cargo fuzz run keypair_generation
 cargo fuzz run sign_verify
 cargo fuzz run cross_algorithm
+cargo fuzz run key_parsing
+cargo fuzz run signature_parsing
 ```
 
 To run a fuzz target for a specific amount of time:
 
-```
+```bash
 cargo fuzz run keypair_generation -- -max_total_time=60
 ```
 
 To run a fuzz target with a specific number of iterations:
 
-```
+```bash
 cargo fuzz run keypair_generation -- -runs=1000000
 ```
+
+To run **all** fuzz targets sequentially, use the provided script (make sure it's executable: `chmod +x fuzz/run_all_fuzzers.sh`):
+
+```bash
+./fuzz/run_all_fuzzers.sh
+```
+
+This script will iterate through all defined targets **in parallel** using **GNU Parallel**.
+If you don't have GNU Parallel installed, the script will output an error. You can install it using your system's package manager:
+
+- **Debian/Ubuntu:** `sudo apt update && sudo apt install parallel`
+- **Fedora:** `sudo dnf install parallel`
+- **Arch Linux:** `sudo pacman -S parallel`
+- **macOS (Homebrew):** `brew install parallel`
 
 ## Corpus Management
 
@@ -51,6 +69,7 @@ cargo fuzz run target_name fuzz/artifacts/target_name/crash-*
 ```
 
 When reporting an issue found by fuzzing, please include:
+
 1. The exact command used to run the fuzzer
 2. The crash input file
 3. The full output of the crash

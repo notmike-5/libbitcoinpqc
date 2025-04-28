@@ -1,6 +1,6 @@
 #![no_main]
 
-use bitcoinpqc::{generate_keypair, sign, verify, Algorithm};
+use bitcoinpqc::{algorithm_from_index, generate_keypair, sign, verify};
 use libfuzzer_sys::fuzz_target;
 
 fuzz_target!(|data: &[u8]| {
@@ -11,12 +11,7 @@ fuzz_target!(|data: &[u8]| {
 
     // Use first byte to select an algorithm
     let alg_byte = data[0];
-    let algorithm = match alg_byte % 4 {
-        0 => Algorithm::SECP256K1_SCHNORR,
-        1 => Algorithm::FN_DSA_512,
-        2 => Algorithm::ML_DSA_44,
-        _ => Algorithm::SLH_DSA_128S,
-    };
+    let algorithm = algorithm_from_index(alg_byte);
 
     // Use 128 bytes for key generation
     let key_data = &data[1..129];
@@ -37,7 +32,12 @@ fuzz_target!(|data: &[u8]| {
     };
 
     // Try to verify the signature with the correct public key
-    let _verify_result = verify(&keypair.public_key, message, &signature);
+    let verify_result = verify(&keypair.public_key, message, &signature);
+
+    assert!(
+        verify_result.is_ok(),
+        "Verification failed for a signature generated with the corresponding private key! Algorithm: {algorithm:?}",
+    );
 
     // Also try some invalid cases (if we have a valid signature)
     if message.len() > 1 {
