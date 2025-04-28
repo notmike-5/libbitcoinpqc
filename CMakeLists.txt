@@ -115,7 +115,6 @@ target_include_directories(bitcoinpqc PUBLIC
 # Set compile definitions for the library
 target_compile_definitions(bitcoinpqc PRIVATE
     DILITHIUM_MODE=2  # ML-DSA-44 (Dilithium2)
-    CRYPTO_ALGNAME="SPHINCS+-shake-128s"
     PARAMS=sphincs-shake-128s
     FALCON_LOGN_512=9
     CUSTOM_RANDOMBYTES=1
@@ -132,10 +131,3 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
     DESTINATION include
     FILES_MATCHING PATTERN "*.h"
 )
-
-# Build option for examples
-option(BUILD_EXAMPLES "Build example programs" OFF)
-
-if(BUILD_EXAMPLES)
-    add_subdirectory(examples)
-endif()
