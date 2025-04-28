@@ -49,6 +49,8 @@ use bindings_include::*;
 pub enum PqcError {
     /// Invalid arguments provided
     BadArgument,
+    /// Not enough data provided (e.g., for key generation)
+    InsufficientData,
     /// Invalid key provided or invalid format for the specified algorithm
     BadKey,
     /// Invalid signature provided or invalid format for the specified algorithm
@@ -67,6 +69,7 @@ impl fmt::Display for PqcError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             PqcError::BadArgument => write!(f, "Invalid arguments provided"),
+            PqcError::InsufficientData => write!(f, "Not enough data provided"),
             PqcError::BadKey => write!(f, "Invalid key provided or invalid format"),
             PqcError::BadSignature => write!(f, "Invalid signature provided or invalid format"),
             PqcError::NotImplemented => write!(f, "Algorithm not implemented"),
@@ -164,6 +167,31 @@ impl From<Algorithm> for String {
             Algorithm::ML_DSA_44 => "ML_DSA_44".to_string(),
             Algorithm::SLH_DSA_128S => "SLH_DSA_128S".to_string(),
             _ => panic!("Invalid algorithm variant"), // Should not happen with bitmask
+        }
+    }
+}
+
+impl fmt::Display for Algorithm {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match *self {
+            Algorithm::SECP256K1_SCHNORR => write!(f, "SECP256K1_SCHNORR"),
+            Algorithm::FN_DSA_512 => write!(f, "FN_DSA_512"),
+            Algorithm::ML_DSA_44 => write!(f, "ML_DSA_44"),
+            Algorithm::SLH_DSA_128S => write!(f, "SLH_DSA_128S"),
+            _ => write!(f, "Unknown({:b})", self.bits),
+        }
+    }
+}
+
+impl Algorithm {
+    /// Returns a user-friendly debug string with the algorithm name
+    pub fn debug_name(&self) -> String {
+        match *self {
+            Algorithm::SECP256K1_SCHNORR => "SECP256K1_SCHNORR".to_string(),
+            Algorithm::FN_DSA_512 => "FN_DSA_512".to_string(),
+            Algorithm::ML_DSA_44 => "ML_DSA_44".to_string(),
+            Algorithm::SLH_DSA_128S => "SLH_DSA_128S".to_string(),
+            _ => format!("Unknown({:b})", self.bits),
         }
     }
 }
@@ -367,15 +395,20 @@ pub struct KeyPair {
 pub fn generate_keypair(algorithm: Algorithm, random_data: &[u8]) -> Result<KeyPair, PqcError> {
     if algorithm == Algorithm::SECP256K1_SCHNORR {
         // For Secp256k1, random_data *is* the secret key.
-        if random_data.len() != secret_key_size(algorithm) {
-            // Should be 32
-            return Err(PqcError::BadArgument); // Use BadArgument for wrong length seed
+        let required_size = secret_key_size(algorithm); // Should be 32
+
+        // Check for insufficient data
+        if random_data.len() < required_size {
+            return Err(PqcError::InsufficientData);
         }
+
+        // Use the first 32 bytes, truncating excess data if provided
+        let key_data = &random_data[..required_size];
 
         let secp = Secp256k1::<All>::new(); // Context needed for key derivation
 
         // Attempt to create secret key from the provided data
-        let sk_result = SecpSecretKey::from_slice(random_data);
+        let sk_result = SecpSecretKey::from_slice(key_data);
         let sk = sk_result.map_err(|_| PqcError::BadKey)?;
 
         // Create KeyPair from secret key
@@ -400,7 +433,7 @@ pub fn generate_keypair(algorithm: Algorithm, random_data: &[u8]) -> Result<KeyP
     } else {
         // PQC key generation requires specific random data length
         if random_data.len() < 128 {
-            return Err(PqcError::BadArgument);
+            return Err(PqcError::InsufficientData);
         }
 
         unsafe {
@@ -481,10 +514,16 @@ pub fn generate_keypair(algorithm: Algorithm, random_data: &[u8]) -> Result<KeyP
 pub fn sign(secret_key: &SecretKey, message: &[u8]) -> Result<Signature, PqcError> {
     match secret_key.algorithm {
         Algorithm::SECP256K1_SCHNORR => {
-            // Check message length for Schnorr (must be 32-byte hash)
-            if message.len() != 32 {
-                return Err(PqcError::BadArgument); // Schnorr requires a 32-byte message hash
+            // For Secp256k1, message must be a 32-byte hash
+            let required_size = 32;
+
+            // Check if message is too short
+            if message.len() < required_size {
+                return Err(PqcError::InsufficientData);
             }
+
+            // Use only the first 32 bytes if message is longer
+            let msg_data = &message[..required_size];
 
             let secp = Secp256k1::<All>::new(); // Signing context
 
@@ -494,11 +533,8 @@ pub fn sign(secret_key: &SecretKey, message: &[u8]) -> Result<Signature, PqcErro
             // Create Keypair
             let keypair = SecpKeypair::from_secret_key(&secp, &sk);
 
-            // Message is already assumed to be a 32-byte hash, use directly
-            // let msg = Message::from_digest(message.try_into().expect("message is 32 bytes"))?;
-
-            // Sign using sign_schnorr_no_aux_rand with the raw message slice
-            let schnorr_sig = secp.sign_schnorr_no_aux_rand(message, &keypair);
+            // Sign using sign_schnorr_no_aux_rand with the (potentially truncated) message slice
+            let schnorr_sig = secp.sign_schnorr_no_aux_rand(msg_data, &keypair);
 
             // Construct result Signature
             Ok(Signature {
@@ -578,22 +614,25 @@ pub fn verify(
 
     match public_key.algorithm {
         Algorithm::SECP256K1_SCHNORR => {
+            // For Secp256k1, message must be a 32-byte hash
+            let required_size = 32;
+
+            // Check if message is too short
+            if message.len() < required_size {
+                return Err(PqcError::InsufficientData);
+            }
+
+            // Use only the first 32 bytes if message is longer
+            let msg_data = &message[..required_size];
+
             // Use secp256k1 library for verification
             let secp = Secp256k1::<secp256k1::VerifyOnly>::verification_only();
             let pk = public_key.secp256k1_key()?;
             let sig = signature.secp256k1_signature()?;
 
-            // Assume message is a 32-byte hash for Schnorr
-            if message.len() != 32 {
-                return Err(PqcError::BadArgument); // Or a more specific error?
-            }
-            // Message is already assumed to be a 32-byte hash, use directly
-            // let msg = Message::from_digest(message.try_into().expect("message is 32 bytes"))?;
-
-            // Verify using verify_schnorr with the raw message slice
-            secp.verify_schnorr(&sig, message, &pk)
+            // Verify using verify_schnorr with the (potentially truncated) message slice
+            secp.verify_schnorr(&sig, msg_data, &pk)
                 .map_err(PqcError::Secp256k1Error)
-                .or(Err(PqcError::BadSignature))
         }
         pqc_alg => {
             // Length check for public key (still useful)
