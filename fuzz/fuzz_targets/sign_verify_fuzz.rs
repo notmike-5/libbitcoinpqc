@@ -1,6 +1,6 @@
 #![no_main]
 
-use bitcoinpqc::{algorithm_from_index, generate_keypair, sign, verify, Algorithm};
+use bitcoinpqc::{algorithm_from_index, generate_keypair, sign, verify};
 use libfuzzer_sys::fuzz_target;
 
 fuzz_target!(|data: &[u8]| {
