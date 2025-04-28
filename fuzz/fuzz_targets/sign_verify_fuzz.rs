@@ -1,11 +1,12 @@
 #![no_main]
 
-use bitcoinpqc::{algorithm_from_index, generate_keypair, sign, verify};
+use bitcoinpqc::{algorithm_from_index, generate_keypair, sign, verify, Algorithm};
 use libfuzzer_sys::fuzz_target;
 
 fuzz_target!(|data: &[u8]| {
-    if data.len() < 150 {
-        // Need sufficient bytes for all operations
+    // Need sufficient bytes for all operations:
+    // 1 byte for algorithm + 128 bytes for key generation + 32 bytes for message (Secp256k1 requires 32)
+    if data.len() < 1 + 128 + 32 {
         return;
     }
 
@@ -28,6 +29,7 @@ fuzz_target!(|data: &[u8]| {
     let keypair = keypair_result.unwrap();
 
     // Use remaining bytes as message to sign
+    // We've already checked above that we have at least 32 bytes left
     let message = &data[129..];
 
     // Try to sign the message
