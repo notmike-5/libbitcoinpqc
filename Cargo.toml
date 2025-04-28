@@ -13,7 +13,7 @@ hex = "0.4"
 libc = "0.2"
 bitmask-enum = "2.2.5"
 serde = { version = "1.0", features = ["derive"], optional = true }
-secp256k1 = { version = "0.30.0", default-features = false, features = [
+secp256k1 = { version = "0.31.0", default-features = false, features = [
     "global-context",
     "rand",
 ] }
