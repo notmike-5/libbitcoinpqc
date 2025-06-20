@@ -6,7 +6,6 @@
  * signature algorithms for use with BIP-360 and the Bitcoin QuBit soft fork:
  * - ML-DSA-44 (CRYSTALS-Dilithium)
  * - SLH-DSA-Shake-128s (SPHINCS+)
- * - FN-DSA-512 (FALCON)
  */
 
 #ifndef BITCOIN_PQC_H
