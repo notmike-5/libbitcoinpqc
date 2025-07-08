@@ -11,3 +11,5 @@ node_modules/
 **/target/
 tags
 TAGS
+rust-toolchain.toml
+Cargo.lock
