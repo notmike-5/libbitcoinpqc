@@ -47,7 +47,7 @@ fn get_random_bytes(size: usize) -> Vec<u8> {
                 unsafe {
                     let data = match COUNTER {
                         0 => ml_dsa_det_data,
-                        _ => slh_dsa_det_data
+                        _ => slh_dsa_det_data,
                     };
                     COUNTER += 1;
                     data

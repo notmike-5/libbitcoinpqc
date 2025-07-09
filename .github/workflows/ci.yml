@@ -48,7 +48,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         # os: [ubuntu-latest, macos-latest]
-        rust: [stable, nightly]
+        rust: [stable]
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
@@ -65,12 +65,19 @@ jobs:
           brew install cmake
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@master
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: ${{ matrix.rust }}
+          components: clippy, rustfmt
 
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
+
+      - name: Check code format
+        run: cargo fmt -- --check
+
+      - name: Clippy
+        run: cargo clippy -- -D warnings
 
       - name: Build
         run: cargo build --verbose
