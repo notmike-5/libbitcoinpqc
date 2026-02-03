@@ -22,7 +22,7 @@
         "src/c_sources/dilithium_ref/rounding.c",
         "src/c_sources/dilithium_ref/fips202.c",
         "src/c_sources/dilithium_ref/symmetric-shake.c",
-        "src/c_sources/dilithium_ref/randombytes_custom.c",
+        "src/c_sources/randombytes_custom.c",
         "src/c_sources/sphincsplus_ref/address.c",
         "src/c_sources/sphincsplus_ref/fors.c",
         "src/c_sources/sphincsplus_ref/hash_shake.c",
