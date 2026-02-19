@@ -20,11 +20,11 @@ This library serves as the cryptographic foundation for the Bitcoin QuBit soft f
 
 ## Key Characteristics
 
-| Algorithm | Public Key Size | Secret Key Size | Signature Size | Security Level |
-|-----------|----------------|----------------|----------------|----------------|
-| secp256k1 | 32 bytes | 32 bytes | 64 bytes | Classical |
-| ML-DSA-44 | 1,312 bytes | 2,528 bytes | 2,420 bytes | NIST Level 2 |
-| SLH-DSA-SHAKE-128s | 32 bytes | 64 bytes | 7,856 bytes | NIST Level 1 |
+| Algorithm          | Public Key Size | Secret Key Size | Signature Size | Security Level |
+| ------------------ | --------------- | --------------- | -------------- | -------------- |
+| secp256k1          | 32 bytes        | 32 bytes        | 64 bytes       | Classical      |
+| ML-DSA-44          | 1,312 bytes     | 2,528 bytes     | 2,420 bytes    | NIST Level 2   |
+| SLH-DSA-SHAKE-128s | 32 bytes        | 64 bytes        | 7,856 bytes    | NIST Level 1   |
 
 ## Security Notes
 
@@ -32,6 +32,37 @@ This library serves as the cryptographic foundation for the Bitcoin QuBit soft f
 - Random data is required for key generation, but not for signing. All signatures are deterministic, based on the message and secret key.
 - The implementations are based on reference code from the NIST PQC standardization process and are not production-hardened.
 - Care should be taken to securely manage secret keys in applications.
+
+## Entropy length requirement
+
+The API requires a minimum of **128 bytes** of entropy for key generation, enforced uniformly
+across all algorithms regardless of their individual seed sizes:
+
+```c
+if (!keypair || !random_data)       return BITCOIN_PQC_ERROR_BAD_ARG;
+if (random_data_size < 128)         return BITCOIN_PQC_ERROR_BAD_ARG;
+```
+
+The actual entropy consumed by each algorithm is less than this minimum:
+
+| Algorithm          | Bytes consumed | Source in spec                                                                      |
+| ------------------ | -------------- | ----------------------------------------------------------------------------------- |
+| ML-DSA-44          | 32 bytes       | FIPS 204 — one `SEEDBYTES`-wide draw fed into SHAKE-256 expansion                   |
+| SLH-DSA-SHAKE-128s | 48 bytes       | FIPS 205 — three independent *n*-byte values (SK.seed ‖ SK.prf ‖ PK.seed), *n* = 16 |
+
+Bytes beyond these amounts are accepted but **silently ignored** by the underlying
+reference implementations. A caller reading the 128-byte requirement should not infer
+that all 128 bytes contribute to key material — only the first 32 or 48 bytes (depending
+on algorithm) do.
+
+The 128-byte floor is a deliberate policy choice rather than a per-algorithm technical
+requirement, motivated by:
+
+- **Uniform API** — callers do not need to know per-algorithm seed sizes.
+- **Quality signal** — a caller that can supply 128 bytes from a secure source is less
+  likely to be misusing a low-entropy value padded to the minimum.
+- **Headroom** — a future algorithm in the same API could require more entropy without
+  a breaking change to the interface contract.
 
 ## BIP-360 Compliance
 
