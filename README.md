@@ -1,28 +1,28 @@
 # libbitcoinpqc
 
-A C library for Post-Quantum Cryptographic (PQC) signature algorithms. This library implements two NIST PQC standard signature algorithms for use with [BIP-360](https://github.com/cryptoquick/bips/blob/p2qrh/bip-0360.mediawiki) and the Bitcoin QuBit soft fork:
+A C library for post-quantum cryptographic (PQC) signature schemes. This library implements two NIST-standardized PQC signature schemes and is used by [BIP-360](https://github.com/cryptoquick/bips/blob/p2qrh/bip-0360.mediawiki) and the Bitcoin QuBit soft fork:
 
 1. **ML-DSA-44** (formerly CRYSTALS-Dilithium): A structured lattice-based digital signature scheme that is part of the NIST PQC standardization.
 2. **SLH-DSA-Shake-128s** (formerly SPHINCS+): A stateless hash-based signature scheme with minimal security assumptions.
 
-Notice that all PQC signature algorithms used are certified according to the Federal Information Processing Standards, or FIPS. This should help in the future with native hardware support.
+All PQC signature algorithms used have been standardized in Federal Information Processing Standards (FIPS). This may drive native hardware support in the future.
 
 ## Bitcoin QuBit Integration
 
-This library serves as the cryptographic foundation for the Bitcoin QuBit soft fork, which aims to make Bitcoin's signature verification quantum-resistant through the implementation of BIP-360. QuBit introduces new post-quantum secure transaction types that can protect Bitcoin from potential threats posed by quantum computers.
+This library serves as the cryptographic foundation for the Bitcoin QuBit soft fork, which aims to make Bitcoin signatures quantum-resistant.
 
 ## Features
 
-- Clean, unified C API for all three signature algorithms
-- User-provided entropy (bring your own randomness)
-- Key generation, signing, and verification functions
+- Clean, unified C API for both signature schemes
+- Functions for key generation, signing, and verification
 - Minimal dependencies
+- User-provided entropy (bring your own randomness)
 
 ## Key Characteristics
 
 | Algorithm          | Public Key Size | Secret Key Size | Signature Size | Security Level |
 | ------------------ | --------------- | --------------- | -------------- | -------------- |
-| secp256k1          | 32 bytes        | 32 bytes        | 64 bytes       | Classical      |
+| ECDSA (secp256k1)  | 32 bytes        | 32 bytes        | 64 bytes       | Classical      |
 | ML-DSA-44          | 1,312 bytes     | 2,528 bytes     | 2,420 bytes    | NIST Level 2   |
 | SLH-DSA-SHAKE-128s | 32 bytes        | 64 bytes        | 7,856 bytes    | NIST Level 1   |
 
